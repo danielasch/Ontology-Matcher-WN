@@ -1,10 +1,11 @@
 
-						Ontology-Matcher                               					                											                        
+        Ontology-Matcher                               					                											                        
 	This product includes software developed at PUCRS  	 
 	by the NLP team 									                
 	(http://www.inf.pucrs.br/linatural/wordpress/).		   
 ------------------------------------------------------
-				About Top-match						                  
+
+        About Ontology-Matcher						                  
 														                         
 	Top-match is an ontology matching system that 		  
 	generates alignments between top ontologies 		    
@@ -23,29 +24,31 @@
 		WordNet", IX Seminar on Ontology Research in 	   
 		Brazil, 2017. (BR-portuguese)				          
 ------------------------------------------------------
-				System Requirements					               
+
+        System Requirements					               
 														                        
 	Top-match requires Java SE Runtime Environmet 8+.	 
 														                        
 	CPU: Intel Core i5-2400 @ 3.10GHz or better			   
 	Memory: 4GB RAM or higher							              
- Keep in mind that memory usage depends on the 	  
-  size of the ontologies. Therefore, opening 		    
-  large ontologies may take a while. 			      
+         Keep in mind that memory usage depends on the 	  
+         size of the ontologies. Therefore, opening 		    
+         large ontologies may take a while. 			      
 ------------------------------------------------------
-				Top-match Eclipse IDE Usage			          
+       
+        Top-match Eclipse IDE Usage			          
 														                       
 	Go to:                                           
 	                                                    
- File-> New-> Project...                         
+        File-> New-> Project...                         
                           								           
 	Select:                                            
-														                          
+														                         
 	Maven-> Maven Project                				      
 							                                       
 	Then select the location of ontoAli-pucrs folder  
                                                      
- Running:                                          
+        Running:                                          
 	                                                    
 	Run Configuration-> Java Aplication	                
                                         				    
@@ -81,7 +84,8 @@
 	http://nlp.stanford.edu/data/glove.6B.zip          
 	Copy the glove.6B.200d.txt into the resources folder!!                               
 ------------------------------------------------------
-				About Techniques					                
+
+        About Techniques					                
 														                         
 	These techniques modify the synset disambiguation	  
 	method.												                     

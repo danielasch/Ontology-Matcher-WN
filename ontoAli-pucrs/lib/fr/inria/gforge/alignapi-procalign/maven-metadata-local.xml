@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata>
+  <groupId>fr.inria.gforge</groupId>
+  <artifactId>alignapi-procalign</artifactId>
+  <versioning>
+    <release>4.9</release>
+    <versions>
+      <version>4.9</version>
+    </versions>
+    <lastUpdated>20171207164624</lastUpdated>
+  </versioning>
+</metadata>

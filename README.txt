@@ -36,7 +36,7 @@
          large ontologies may take a while. 			      
 ------------------------------------------------------
        
-        Top-match Eclipse IDE Usage			          
+        Ontology-Matcher Eclipse IDE Usage			          
 														                       
 	Go to:                                           
 	                                                    

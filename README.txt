@@ -7,11 +7,11 @@
 
         About Ontology-Matcher						                  
 														                         
-	Top-match is an ontology matching system that 		  
+	Ontology-Matcher is an ontology matching system that 		  
 	generates alignments between top ontologies 		    
 	(DOLCE, SUMO and DUL) and any domain ontology. 		 
    													                       
-	If you use top-match, please cite the following		 
+	If you use Ontology-Matcher, please cite the following		 
 	publication:										                   
 														                         
 	For more information, read:							         

@@ -69,14 +69,18 @@
 														                      
 	a) Use top-match to align a domain ontology with 	 
 	dolce, sumo or dul:									               
-	$~java -jar top-match.jar C:/Users/.../ontology.owl 
-	C:/Users/.../alignment.rdf sumo 2					         
+	C:/Users/.../ontology.owl 
+	C:/Users/.../alignment.rdf 
+	sumo 
+	2					         
 														                         
 	b) Use top-match to align a domain ontology with	  
 	dolce, sumo or dul and evaluate the genereted		      
 	alignment with a reference alignment:				        
-	$~java -jar top-match.jar C:/Users/.../ontology.owl 
-	C:/Users/.../alignment.rdf sumo 2 					        
+	C:/Users/.../ontology.owl 
+	C:/Users/.../alignment.rdf 
+	sumo 
+	2 					        
 	C:/Users/.../refAlign.rdf	                          
 	                                                   
 	OBS: To use the word embeddings technique, you     

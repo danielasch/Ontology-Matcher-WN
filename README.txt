@@ -27,7 +27,7 @@
 
         System Requirements					               
 														                        
-	Top-match requires Java SE Runtime Environmet 8+.	 
+	Ontology-Matcher requires Java SE Runtime Environmet 8+.	 
 														                        
 	CPU: Intel Core i5-2400 @ 3.10GHz or better			   
 	Memory: 4GB RAM or higher							              

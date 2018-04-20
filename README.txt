@@ -40,13 +40,13 @@
 														                       
 	Go to:                                           
 	                                                    
-        File-> New-> Project...                         
+        File-> Import...                         
                           								           
 	Select:                                            
 														                         
-	Maven-> Maven Project                				      
+	Maven-> Existing Maven Projects                				      
 							                                       
-	Then select the location of ontoAli-pucrs folder  
+	Then select the root directory as the of location of ontoAli-pucrs folder  
                                                      
         Running:                                          
 	                                                    

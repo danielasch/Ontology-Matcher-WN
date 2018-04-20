@@ -46,7 +46,12 @@
 														                         
 	Maven-> Existing Maven Projects                				      
 							                                       
-	Then select the root directory as the of location of ontoAli-pucrs folder  
+	Then select the root directory as the location of ontoAli-pucrs folder
+	
+	OBS: To use the word embeddings technique, you     
+	must download the GloVe model:                      
+	http://nlp.stanford.edu/data/glove.6B.zip          
+	Copy the glove.6B.200d.txt into the resources folder!! 
                                                      
         Running:                                          
 	                                                    
@@ -83,12 +88,7 @@
 	C:/Users/.../alignment.rdf 
 	sumo 
 	2 					        
-	C:/Users/.../refAlign.rdf	                          
-	                                                   
-	OBS: To use the word embeddings technique, you     
-	must download the GloVe model:                      
-	http://nlp.stanford.edu/data/glove.6B.zip          
-	Copy the glove.6B.200d.txt into the resources folder!!                               
+	C:/Users/.../refAlign.rdf	                          	                                                                 
 ------------------------------------------------------
 
         About Techniques					                

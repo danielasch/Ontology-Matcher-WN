@@ -50,8 +50,10 @@
                                                      
         Running:                                          
 	                                                    
-	Run Configuration-> Java Aplication	                
-                                        				    
+	Run Configuration-> Java Aplication
+	
+        Select main class as Main.java
+	
 	The arguments order are:							             
 														                      
 	-[domain ontology path]								             
@@ -67,14 +69,14 @@
 														                        
 	Examples:											                    
 														                      
-	a) Use top-match to align a domain ontology with 	 
+	a) Use Ontology-Matcher to align a domain ontology with 	 
 	dolce, sumo or dul:									               
 	C:/Users/.../ontology.owl 
 	C:/Users/.../alignment.rdf 
 	sumo 
 	2					         
 														                         
-	b) Use top-match to align a domain ontology with	  
+	b) Use Ontology-Matcher to align a domain ontology with	  
 	dolce, sumo or dul and evaluate the genereted		      
 	alignment with a reference alignment:				        
 	C:/Users/.../ontology.owl 

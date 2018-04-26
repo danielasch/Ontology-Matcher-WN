@@ -51,7 +51,9 @@
 	OBS: To use the word embeddings technique, you     
 	must download the GloVe model:                      
 	http://nlp.stanford.edu/data/glove.6B.zip          
-	Copy the glove.6B.200d.txt into the resources folder!! 
+	Copy the glove.6B.200d.txt into the resources folder!!
+	
+	OBS: Make sure to NOT use backslash, but the slash to all paths.
                                                      
         Running:                                          
 	                                                    

@@ -1,19 +1,22 @@
 package matchingProcess;
 
+/*
+ * This class maps the alignment between domain Ont. classes and top Ont. classes
+ */
 public class Mapping {
 	
+//Attributes
+	
+	//source entity
 	private String source;
+	//target entity
 	private String target;
-	
+	//relation between source and target
 	private String relation;
+	//trust measure
 	private String measure;
-	
-	/*Mapping(String _source, String _target, String _relation, boolean _measure) {
-		source = _source;
-		target = _target;
-		relation = _relation;
-		measure = _measure; 
-	}*/
+
+//Getters and setters 
 	
 	void set_source(String _source) {
 		source = _source;

@@ -15,14 +15,29 @@ import java.util.List;
 import edu.mit.jwi.Dictionary;
 import edu.mit.jwi.IDictionary;
 
+/*
+ * This class contains and initiate the resources used in the process 
+ */
 public class BaseResource {
+
+//Attributes
 	
+	//Stop words list
 	private List<String> stpWords = new ArrayList<String>();
-	private String wnhome = "resources/WordNet-3.0"; //Local do WordNet
+	//WordNet path
+	private String wnhome = "resources/WordNet-3.0";
+	//WN dictionary
 	private IDictionary dict;
+	//Lemmatizer resource
 	private StanfordLemmatizer slem;
+	//Word2Vector resource
 	private Word2Vector w2v;
+
+//Constructors
 	
+	/*
+	 * Default
+	 */
 	public BaseResource() {
 			init_log();
 			rd_StpWords();
@@ -30,6 +45,11 @@ public class BaseResource {
 			this.slem = new StanfordLemmatizer();
 			this.w2v = null;
 	}
+	
+	/*
+	 * This constructor receive an integer and select based on 
+	 * the technique select which resources should be initialized  
+	 */
 	public BaseResource(int x) {
 		if(x == 1) {
 			init_log();
@@ -48,7 +68,8 @@ public class BaseResource {
 		}
 	}
 	
-	//*info logs*//
+//Log methods
+	
 	private void init_log() {
 		SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
 		System.out.println(sdf.format(Calendar.getInstance().getTime()) + " - [log] - Initializing resources!" );
@@ -63,7 +84,12 @@ public class BaseResource {
 		SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
 		System.out.println(sdf.format(Calendar.getInstance().getTime()) + " - [log] - Accessing WordNet..." );
 	}
-	//*readers*//
+
+//Reader method
+	/*
+	 * This method read the stopwords2.text file, 
+	 * and put the lines into a list
+	 */
 	private void rd_StpWords() {
 		stpWords_log();
 		try {
@@ -82,7 +108,11 @@ public class BaseResource {
 	    	System.out.println("error: " + e);
 	    }
 	}
+//Recover method
 	
+	/*
+	 * This method recovers the IDictionary used to access the WN
+	 */
 	private void rc_dictionary() {
 		dictionary_log();
 		try {
@@ -95,7 +125,8 @@ public class BaseResource {
 		}
 	}
 	
-	//*getters*//
+//Getters and setters
+	
 	public List<String> get_StpWords() {
 		return this.stpWords;
 	}

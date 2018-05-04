@@ -6,13 +6,16 @@ import java.util.Calendar;
 import org.deeplearning4j.models.embeddings.loader.WordVectorSerializer;
 import org.deeplearning4j.models.word2vec.Word2Vec;
 
+/*
+ * This class is used to red the Word Embeddings model
+ */
 public class Word2Vector {
 	
-//Atributes
+//Attributes
 	
-	//Word Embedding model File, this file is loacted at resources folder
+	//Word Embedding model File, this file is located at resources folder
 	private File gModel = new File("resources/glove.6B.200d.txt");
-	//Word2Vec contains the model readed
+	//Word2Vec contains the model read
 	private Word2Vec w2V = null;
 	
 //Log method
@@ -26,7 +29,7 @@ public class Word2Vector {
 	
 	protected Word2Vector() {
 		init_log();
-		//read the w2v model from de gModel atribute (that contains the model file)
+		//read the w2v model from the gModel attribute (that contains the model file)
 		this.w2V = WordVectorSerializer.readWord2VecModel(gModel);
 	}
 

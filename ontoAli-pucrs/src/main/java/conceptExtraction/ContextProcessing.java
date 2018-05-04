@@ -12,16 +12,26 @@ import objects.ConceptManager;
 import resources.BaseResource;
 import resources.StanfordLemmatizer;
 
+/*
+ * This class process the context of a concept
+ */
 public class ContextProcessing {
+
+//Attributes
 	
+	//BaseResource contains the necessary resources to execute the context process
 	private BaseResource base;
+
+//Constructor	
 	
 	ContextProcessing(BaseResource _base) {
 		SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
 		System.out.println(sdf.format(Calendar.getInstance().getTime()) + " - [log] - Context process selected!" );
 		this.base = _base;
 	}
-	//*info logs*//
+
+//Log methods	
+	
 	private void init_log() {
 		SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
 		System.out.println(sdf.format(Calendar.getInstance().getTime()) + " - [log] - Processing the context..." );
@@ -30,21 +40,36 @@ public class ContextProcessing {
 		SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
 		System.out.println(sdf.format(Calendar.getInstance().getTime()) + " - [log] - Context processed!" );
 	}
-	//*process*//
+
+//Methods
+	
+	/*
+	 * This method process the context 
+	 */
 	protected void process(List<Concept> listCon) {
 		ConceptManager man = new ConceptManager();
 		init_log();
 		
 		for(Concept concept: listCon) {
+			//context will receive the processed context of a concept
 			Set<String> context = init(concept.get_context());
+			//sets the context of a concept
 			man.config_context(concept, context);
 		}
 		final_log();
 	}
 	
+	/*
+	 * Split process
+	 */
 	private Set<String> init(Set<String> context) {
+		//Split strings, turning all elements of the context
+		//into tokens
 		Set<String> aux = sp_string(context);
 		Set<String> temp = new HashSet<String>();
+		//Split strings with upperCase.
+		//This second split, avoid tokens separated by upperCase
+		//that were in the description and were not separated. 
 		for(String word: aux) {
 			if(hasUpperCase(word)) {
 				String tempStr = rm_specialChar(word);
@@ -54,11 +79,16 @@ public class ContextProcessing {
 				temp.add(tempStr.toLowerCase());
 			}
 		}
+		//Remove the stop words
 		temp = rm_stopWords(temp);
+		//Lemmatize the context
 		temp = lemmatizer(temp);
 		return temp;
 	}
 	
+	/*
+	 * Lemmatizes all elements of a set
+	 */
 	private Set<String> lemmatizer(Set<String> context) {
 		List<String> lemma = new ArrayList<String>();
 		StanfordLemmatizer slem = this.base.get_lemmatizer();
@@ -67,6 +97,9 @@ public class ContextProcessing {
 		return slem.toSet(lemma);
 	}
 	
+	/*
+	 * Split strings separated with "_", " ", "�" and upperCase
+	 */
 	private Set<String> sp_string(Set<String> context) {
 		Set<String> temp= new HashSet<String>();
 		
@@ -93,6 +126,9 @@ public class ContextProcessing {
 		return context;
 	}
 	
+	/*
+	 * Splits strings separated by upperCase
+	 */
 	private Set<String> sp_upperCase(String wordComp) {
 		Set<String> sep = new HashSet<String>();
 		int x = wordComp.length();
@@ -109,7 +145,11 @@ public class ContextProcessing {
 		return sep;
 	}
 	
-	//*métodos de remoção*//
+//Auxiliary methods
+	
+	/*
+	 * Removes the stopwords of a set
+	 */
 	private Set<String> rm_stopWords(Set<String> set) {
 	    Set<String> wordSet = new HashSet<String>();
 	    List<String> stpWords = this.base.get_StpWords();
@@ -124,6 +164,9 @@ public class ContextProcessing {
 		return wordSet;
 	}
 	
+	/*
+	 * Removes some chars of a string
+	 */
 	private String rm_specialChar(String word) {
 		if(word.endsWith("-")) {
 			word = word.replace("-", "");
@@ -146,7 +189,7 @@ public class ContextProcessing {
         }        
         
         if(word.contains("'s")) {
-        	word = word.replace("'s", "");		//adc remo��o " 's "
+        	word = word.replace("'s", "");
         }
         
         if(word.contains("'")) {
@@ -172,7 +215,9 @@ public class ContextProcessing {
         return word;	
 	}
 	
-	//*métodos de teste*//
+	/*
+	 * Verifies if a string is separated by space
+	 */
 	private boolean hasWhiteSpace(String str) {
 		int length = str.length();
 		
@@ -184,6 +229,9 @@ public class ContextProcessing {
 		return false;	
 	}
 	
+	/*
+	 * Verifies if a string is separated by UpperCase
+	 */
 	private boolean hasUpperCase(String word) {
 		int x = word.length();
 		

@@ -1,7 +1,6 @@
 package objects;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.semanticweb.owlapi.model.OWLClass;
@@ -51,10 +50,6 @@ public class ConceptManager {
 	
 	public void config_subs(Concept cnp, List<OWLClassExpression> subs) {
 		cnp.set_subs(subs);
-	}
-	
-	public void config_distance(Concept cnp, Map<String, Integer> dis) {
-		cnp.set_distance(dis);
 	}
 	
 	public String conceptName_wn(Concept cnp) {

@@ -5,9 +5,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
+
 
 import org.semanticweb.owlapi.model.OWLAnnotation;
 import org.semanticweb.owlapi.model.OWLClass;
@@ -16,14 +15,20 @@ import org.semanticweb.owlapi.model.OWLOntology;
 
 import objects.Concept;
 import objects.ConceptManager;
-
+/*
+ * This class extract the information about a concept from the ontology
+ */
 public class ContextExtraction {
+	
+//Constructor
 	
 	ContextExtraction() {
         SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
 		System.out.println(sdf.format(Calendar.getInstance().getTime()) + " - [log] - Context method selected!" );
 	}
-	//*info logs*//
+	
+//Log methods
+	
 	private void init_log() {
         SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
 		System.out.println(sdf.format(Calendar.getInstance().getTime()) + " - [log] - Extracting domain ontology classes..." );
@@ -44,66 +49,90 @@ public class ContextExtraction {
 		System.out.println(sdf.format(Calendar.getInstance().getTime()) + " - [log] - Upper ontology classes Extracted!" );
 	}
 	
-	//*process*//
+//Methods
+	
+	/*
+	 * Extracts the concept and its information from domain ontology
+	 */
 	protected List<Concept> extract(OWLOntology onto) {
 		init_log();
+		//the list with all concepts extracted 
 		List<Concept> listCon = new ArrayList<Concept>();
 		ConceptManager man = new ConceptManager();
 		
 		for(OWLClass owlClass: onto.getClassesInSignature()) {
+			//instantiate the Concept class
 			Concept concept = new Concept();
 			Set<String> context = new HashSet<String>();
 			String desc = null;
-            TreeMap<String, Integer> distance = new TreeMap<String, Integer>();
             List<OWLClassExpression> listSup = new ArrayList<OWLClassExpression>();
             List<OWLClassExpression> listSub = new ArrayList<OWLClassExpression>();
-			
+			//sets the ontology into the concept class
             man.config_owlOntology(concept, onto);
+            //sets the owlclass into the concept class
 			man.config_owlClass(concept, owlClass);
+			//sets the owlclassID into the concept class
 			man.config_classId(concept, owlClass.toString());
+			//sets the owlclass name into the concept class
 			man.config_className(concept, owlClass.getIRI().getFragment());
-			
-            distance.put(owlClass.getIRI().getFragment(), 0);
+
+            //adds the concept name into the context
             context.add(owlClass.getIRI().getFragment());
-			
+			//desc receive the annotation of a concept
 			desc = extract_annotation(onto, owlClass, context);
+			//sets the description into the concept class
 			man.config_description(concept, desc);
-			
-			extract_superClass(onto, owlClass, context, distance, listSup);
-			extract_subClass(onto, owlClass, context, distance, listSub);
+			//extracts the super-owlclasses
+			extract_superClass(onto, owlClass, context, listSup);
+			//extracts the sub-owlclasses
+			extract_subClass(onto, owlClass, context, listSub);
+			//sets the context list into a cocnept class
 			man.config_context(concept, context);
+			//sets the super-owlclasses list into a concept class
 			man.config_supers(concept, listSup);
+			//sets the sub-owlclasses list into a concept class
 			man.config_subs(concept, listSub);
-			man.config_distance(concept, distance);
-			
+			//adds the Concept into a list
 			listCon.add(concept);
 		}
 		final_log();
 		return listCon;
 	}
 	
+	/*
+	 * Extracts the concept and its information from top ontology
+	 */
 	protected List<Concept> extract_upper(OWLOntology onto) {
 		init_log_upper();
 		List<Concept> listCon = new ArrayList<Concept>();
 		ConceptManager man = new ConceptManager();
 		
 		for(OWLClass owlClass: onto.getClassesInSignature()) {
+			//instantiate the Concept class
 			Concept concept = new Concept();
 			String desc = null;
-			
+			//sets the ontology into the concept class
             man.config_owlOntology(concept, onto);
+            //sets the owlclass into the concept class
 			man.config_owlClass(concept, owlClass);
+			//sets the owlclassID into the concept class
 			man.config_classId(concept, owlClass.toString());
+			//sets the owlclass name into the concept class
 			man.config_className(concept, owlClass.getIRI().getFragment());
-			
+			//desc receive the annotation of a concept
 			desc = extract_annotation_upper(onto, owlClass);
+			//sets the description into the concept class
 			man.config_description(concept, desc);
+			//adds the concept into a list
 			listCon.add(concept);
 		}
 		final_log_upper();
 		return listCon;
 	}
 	
+	/*
+	 * Extracts the annotation of the top onto. concept
+	 */
 	private String extract_annotation_upper(OWLOntology onto, OWLClass cls) {
 		String aux = null;
 		for(OWLAnnotation anno: cls.getAnnotations(onto)) {
@@ -112,10 +141,14 @@ public class ContextExtraction {
 		return aux;
 	}
 	
+	/*
+	 * Extracts the annotation of the domain ont. concept
+	 */
 	private String extract_annotation(OWLOntology onto, OWLClass cls, Set<String> cntxt) {
 		String desc = null;
 		for(OWLAnnotation anno: cls.getAnnotations(onto)) {
 			String aux2 = null;
+			//get the annotation at comment label
 			if(anno.getProperty().getIRI().getFragment().equals("comment") && anno != null) { 
 				String aux = anno.getValue().toString();
 				aux = rm_suffix(aux);
@@ -123,27 +156,27 @@ public class ContextExtraction {
         	
 				aux = remove_specialChar(aux);
 				cntxt.add(aux);
+			//get the annotation at definition label
 			} else if(anno.getProperty().getIRI().getFragment().equals("definition") && anno != null) {
 				String aux = anno.getValue().toString();
 				aux = rm_suffix(aux);
-				//cnp.set_desc(aux);
 				aux2 = aux;
         	
 				aux = remove_specialChar(aux);
 				cntxt.add(aux);
+			//get the annotation at example label
 			} else if(anno.getProperty().getIRI().getFragment().equals("example") && anno != null) {
 				String aux = anno.getValue().toString();
 				aux = rm_suffix(aux);
-				//cnp.set_desc(aux);
 				aux2 = aux;
         	
 				aux = remove_specialChar(aux);
 				cntxt.add(aux);
 			}
-			//condicao que previne que apareca null, elementos repetidos na descricao do conceito//
+			//condition that avoid the apparition of null and repeated elements into the concept description 
 			if(desc == null && aux2 != null) {
 				desc = aux2;
-			} else if ((desc != null && aux2 != null) && !desc.contains(aux2)) {
+			} else if((desc != null && aux2 != null) && !desc.contains(aux2)) {
 				desc = desc + aux2;
 			}
 			
@@ -151,71 +184,73 @@ public class ContextExtraction {
 		return desc;
 	}
 	
-	protected void extract_superClass(OWLOntology onto, OWLClass cls, Set<String> cntxt, Map<String, Integer> dis, List<OWLClassExpression> list) {
-		int cont = 0;
+	/*
+	 * Extracts the super classes of a owlClass
+	 */
+	protected void extract_superClass(OWLOntology onto, OWLClass cls, Set<String> cntxt, List<OWLClassExpression> list) {
 		for(OWLClassExpression sup: cls.getSuperClasses(onto)) {
         	if(!sup.isAnonymous()) {					   		
-        		cont++;
         		cntxt.add(sup.asOWLClass().getIRI().getFragment().toString());
-        		dis.put(sup.asOWLClass().getIRI().getFragment(), cont);
         		list.add(sup);
         		
-        		extract_superRecurClass(onto, sup, cntxt, dis, cont, list);	
-                	
+        		extract_superRecurClass(onto, sup, cntxt, list);	 	
         	}	
 		}
-		
 	}
 	
-	
-	protected void extract_superRecurClass(OWLOntology onto, OWLClassExpression su, Set<String> cntxt, Map<String, Integer> dis, int cont, List<OWLClassExpression> list) {	
+	/*
+	 * Recursive call of extract_superClass
+	 */
+	protected void extract_superRecurClass(OWLOntology onto, OWLClassExpression su, Set<String> cntxt, List<OWLClassExpression> list) {	
 		if(su != null) {
-			cont++;
 			for(OWLClassExpression sup: su.asOWLClass().getSuperClasses(onto)) {
         	
 				if(!sup.isAnonymous()) {					
 					list.add(sup);
 					cntxt.add(sup.asOWLClass().getIRI().getFragment().toString());
-					dis.put(sup.asOWLClass().getIRI().getFragment(), cont);
 					
-					extract_superRecurClass(onto, sup, cntxt, dis, cont, list); 	
+					extract_superRecurClass(onto, sup, cntxt, list); 	
 				}	
 			}
 		}		
 	}
 	
-	protected void extract_subClass(OWLOntology onto, OWLClass cls, Set<String> cntxt, Map<String, Integer> dis, List<OWLClassExpression> list) {
-		int cont = 0;
-		cont--;
+	/*
+	 * Extracts the sub classes of a owlClass
+	 */
+	protected void extract_subClass(OWLOntology onto, OWLClass cls, Set<String> cntxt, List<OWLClassExpression> list) {
 		for(OWLClassExpression sub: cls.getSubClasses(onto)) {
         	if(!sub.isAnonymous()) {
         		cntxt.add(sub.asOWLClass().getIRI().getFragment().toString());
-        		dis.put(sub.asOWLClass().getIRI().getFragment(), cont);
         		list.add(sub);
         		
-        		extract_subRecurClass(onto, sub, cntxt, dis, cont, list);
+        		extract_subRecurClass(onto, sub, cntxt, list);
         		
         	}
         }
 	}
 	
-	protected void extract_subRecurClass(OWLOntology onto, OWLClassExpression su, Set<String> cntxt, Map<String, Integer> dis, int cont, List<OWLClassExpression> list) {
+	/*
+	 * Recursive call of extract_subClass
+	 */
+	protected void extract_subRecurClass(OWLOntology onto, OWLClassExpression su, Set<String> cntxt, List<OWLClassExpression> list) {
 		if(su != null) {
-			cont--;
-			for(OWLClassExpression sub: su.asOWLClass().getSubClasses(onto)) {
-				
+			for(OWLClassExpression sub: su.asOWLClass().getSubClasses(onto)) {				
 				if(!sub.isAnonymous()) {
 	        		list.add(sub);
 	        		cntxt.add(sub.asOWLClass().getIRI().getFragment().toString());
-	        		dis.put(sub.asOWLClass().getIRI().getFragment(), cont);
 	        		
-	        		extract_subRecurClass(onto, sub, cntxt, dis, cont, list);
+	        		extract_subRecurClass(onto, sub, cntxt, list);
 				}
 			}
 		}
 	}
 	
-	//* Funções auxiliares *//
+//Auxiliary methods 
+	
+	/*
+	 * Removes the suffix of the annotation 
+	 */
 	private String rm_suffix(String aux) {
 		if(aux.endsWith("^^xsd:string")) {
 			aux = aux.replace("^^xsd:string", "");
@@ -227,6 +262,9 @@ public class ContextExtraction {
 		return aux;
 	}
 	
+	/*
+	 * Removes some chars of a string
+	 */
 	private String remove_specialChar(String word) {
 		String aux = word;
 		char x = '"';
@@ -263,8 +301,7 @@ public class ContextExtraction {
     	if(aux.contains("  ")) {
     		aux = aux.replaceAll("  ", " ");
     	}
-    	return aux;
-    	
+    	return aux;  	
 	}
 	
 	

@@ -10,9 +10,11 @@ import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 import org.semanticweb.owlapi.model.OWLOntologyID;
 import org.semanticweb.owlapi.model.OWLOntologyManager;
 
-
+/*
+ *Ontology class contains all the information about a OWLOntology loaded
+ */
 public class Ontology {
-//Atributes
+//Attributes
 	
 	//Ontology file name
 	private String fileName;
@@ -81,12 +83,13 @@ public class Ontology {
 	protected OWLOntologyManager get_ontologyManager() {
 		return manager;
 	}
+	
 //Methods
 	
 	/*
 	 * Loads the ontology into OWLOntology and extract the Ontology ID, IRI and manager.
 	 */	
-	protected void shouldLoad(String _file) throws OWLOntologyCreationException, FileNotFoundException, IOException {
+	protected void shouldLoad(String _file) throws FileNotFoundException, IOException, OWLOntologyCreationException {
 		
 		File file = new File(_file);
 		

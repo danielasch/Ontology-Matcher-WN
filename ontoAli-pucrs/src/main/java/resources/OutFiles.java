@@ -10,14 +10,33 @@ import java.util.Map.Entry;
 import edu.mit.jwi.item.ISynset;
 import objects.Concept;
 
+/*
+ * This class generates the text files
+ */
 public class OutFiles {
-	private String outPath;
 	
+//Attributes
+	
+	//Contains path to write the text files
+	private String outPath;
+
+//Constructor	
+	
+	/*
+	 * This constructor receive the path to the alignment and
+	 * change .rdf by _1.text, this way, the text file will be
+	 * generated at the save folder as the alignment
+	 */
 	public OutFiles(String path) {
 		String aux = path.replace(".rdf", "_1.txt");
 		this.outPath = aux;
 	}
 	
+//Methods
+	
+	/*
+	 * Generates the text file for the overlapping technique
+	 */
 	public void out_file(List<Concept> listDomain) {
 		try {
 			FileWriter arq = new FileWriter(this.outPath);
@@ -59,9 +78,11 @@ public class OutFiles {
 			System.out.println("Operação I/O interrompida, no arquivo de saída syCNTXT!");
 	    	System.out.println("erro: " + e);
 		}
-
 	}
-	
+
+	/*
+	 * Generates the text file for the Word Embeddings technique
+	 */	
 	public void out_file_we(List<Concept> listDomain) {
 		try {
 			FileWriter arq = new FileWriter(this.outPath);
@@ -75,7 +96,6 @@ public class OutFiles {
 				printer.print("Contexto: " + cnp.get_context() + "\n");
 				printer.print("Conceito Topo alinhado: " + cnp.get_aliClass() + "\n");
 				printer.print("Synset selecionado: " + cnp.get_goodSynset() + "\n");
-				//printer.print("Número de Synsets recuperados: " + cnp.get_utilities().get_numSy() + "\n\n");
 				printer.print("Conjunto de synsets recuperados:\n");
 				
 				int index = 0;
@@ -96,7 +116,6 @@ public class OutFiles {
 			System.out.println("Operação I/O interrompida, no arquivo de saída syCNTXT!");
 	    	System.out.println("erro: " + e);
 		}
-
 	}
 
 }

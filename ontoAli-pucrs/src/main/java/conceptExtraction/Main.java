@@ -1,13 +1,19 @@
+/****************************************************
+*	top-match is a tool to align top and domain     *
+* ontologies.                                       *
+*****************************************************
+* 	This is the main class that calls specialized   *
+* classes to generate the alignment.                *
+*                                                   *
+*                                                   *
+* @author Rafael Basso                              *
+****************************************************/
 package conceptExtraction;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.semanticweb.owlapi.model.OWLOntologyStorageException;
-
-//import DomainOntology;
-//import UpperOntology;
 import matchingProcess.Matching;
 import objects.Concept;
 import objects.Ontology;
@@ -18,40 +24,76 @@ import synsetSelection.SynsetDisambiguation;
 import synsetSelection.SynsetDisambiguationWE;
 import synsetSelection.SynsetDisambiguationWE2;
 
+/*
+ * main class, instantiate and calls the necessary classes to execute the process
+ */
 public class Main {
+
+//Main method
 	
-	public static void main(String[] args) throws OWLOntologyStorageException, FileNotFoundException, IOException {
-		
+	public static void main(String[] args) throws FileNotFoundException, IOException {
+		//this method verifies if the arguments are correct 
+		verify(args);
+		//if there is 4 arguments, then it means that no reference alignment was passed.
+		//so, none evaluation will be done
 		if(args.length == 4) {
+			
 			String domainPath = args[0];
 			String outPath = args[1];
 			String topOntoSelection = args[2];
 			int technic = Integer.parseInt(args[3]);
 			
+
+			
+			//condition that selects the Top Ontology, this case DOLCE
 			if(topOntoSelection.toLowerCase().equals("dolce")) {
-				Ontology domain = new Ontology(domainPath);
+				//instantiate the domain ontology, this way we can extract its information
+				Ontology domain = new Ontology(domainPath);//contrutor que receba FILE
+				//instantiate the Upper ontology, this way we can estract its information
 				Ontology upper = new Ontology("resources/wnNounsyn_v7.owl");
+				//instantiate the class that will generate the text file
 				OutFiles out = new OutFiles(outPath);
-				if(technic == 0) {
-					
-				/*técnica padrão com contexto*/	
-				} else if(technic == 1) {
-					
+				
+				//selects the disambiguation technique
+				//number 1 corresponds to the context overlapping process
+				if(technic == 1) {
+					//instantiation of the Concept list, each Concept contains the information about a OWLClass
+					//this list is for concepts of the domain ontology
 					List<Concept> listCon = new ArrayList<Concept>();
+					//instantiation of the Concept list, each Concept contains the information about a OWLClass
+					//this list is for concepts of the top ontology
 					List<Concept> listUp = new ArrayList<Concept>();
+					//instantiation of resources class, it receives the technique number,
+					//so it can initiate the right resources for the process selected
 					BaseResource base = new BaseResource(technic);
+					//instantiation of the class that will extract all information about the OWLClass
 					ContextExtraction exct = new ContextExtraction();
+					//instantiation of the class that will process the context of a Concept
 					ContextProcessing proc = new ContextProcessing(base);
+					//instantiation of the class that will disambiguate the synset
 					SynsetDisambiguation disam = new SynsetDisambiguation(base);
+					//instantiation of the matching class, this class generates the rdf
 					Matching mat = new Matching(outPath);
+					//listCon receives the list of domain Concepts
 					listCon = exct.extract(domain.get_ontology());
+					//listUp receives the list of top onto. concepts
 					listUp = exct.extract_upper(upper.get_ontology());
+					//calls the process of the context
 					proc.process(listCon);
+					//calls the disambiguation of the process, this case the disambiguation 
+					//by context overlapping
 					disam.disambiguation(listCon);
+					//calls the class that searches for the synset correspondent to the top onto. concept
 					mat.compare_dolce(listCon, listUp);
+					//generates the rdf file
 					mat.out_rdf(domain, upper);
+					//generates the text file referent to the technique selected
 					out.out_file(listCon);
-				/*técnica Word embedding*/	
+				
+	 //OBS: in the code below the calls repeat until the context processing, some changes occurs because of 
+	 //technique selected, the top ontology selected and evaluation process 				
+					
+				//number 2 corresponds to the word embedding process	
 				} else if(technic == 2) {
 					
 					List<Concept> listCon = new ArrayList<Concept>();
@@ -64,11 +106,15 @@ public class Main {
 					listCon = exct.extract(domain.get_ontology());
 					listUp = exct.extract_upper(upper.get_ontology());
 					proc.process(listCon);
+					//calls the disambiguation of the process, this case the disambiguation 
+					//using the word embeddings model
 					disamWE.disambiguation(listCon);
 					mat.compare_dolce(listCon, listUp);
 					mat.out_rdf(domain, upper);
+					//generates the text file referent to the technique selected
 					out.out_file_we(listCon);
-				/*técnica Word embedding 2 */	
+				
+				//number 3 - developing 	
 				} else if(technic == 3) {
 					
 					List<Concept> listCon = new ArrayList<Concept>();
@@ -84,7 +130,8 @@ public class Main {
 					disamWE2.disambiguation(listCon, listUp);
 					mat.compare_dolce(listCon, listUp);
 					mat.out_rdf(domain, upper);	
-					
+				
+				//condition that happens when the technique number isn't 0, 1, 2
 				} else {
 					System.out.println("Invalid technic selected!");
 					System.out.println("0 -> No context technic;\n" + 
@@ -92,7 +139,7 @@ public class Main {
 										"2 -> Context + Word Embedding technic;");
 				}
 				
-				
+			//condition that selects the Top Ontology, this case SUMO	
 			} else if(topOntoSelection.toLowerCase().equals("sumo")) {
 				Ontology domain = new Ontology(domainPath);
 				Ontology upper = new Ontology("resources/SUMO.owl");
@@ -216,21 +263,24 @@ public class Main {
 				System.out.println("Invalid Upper Ontology selection! Choose SUMO, or DOLCE or DUL!");
 			}
 			
-		/*Evaluator selecionado*/	
+		//if there is 5 arguments, then it means that the reference alignment was passed.
+		//so, none evaluation will be done	
 		} else if(args.length == 5) {
+			
 			String domainPath = args[0];
 			String outPath = args[1];
 			String topOntoSelection = args[2];
 			int technic = Integer.parseInt(args[3]);
 			String refPath = args[4];
 			
+			//condition that selects the Top Ontology, this case DOLCE 
 			if(topOntoSelection.toLowerCase().equals("dolce")) {
 				Ontology domain = new Ontology(domainPath);
 				Ontology upper = new Ontology("resources/wnNounsyn_v7.owl");
 				OutFiles out = new OutFiles(outPath);
-				if(technic == 0) {
+				
+				if(technic == 1) {
 					
-				} else if(technic == 1) {
 					List<Concept> listCon = new ArrayList<Concept>();
 					List<Concept> listUp = new ArrayList<Concept>();
 					BaseResource base = new BaseResource(technic);
@@ -238,6 +288,8 @@ public class Main {
 					ContextProcessing proc = new ContextProcessing(base);
 					SynsetDisambiguation disam = new SynsetDisambiguation(base);
 					Matching mat = new Matching(outPath);
+					//instantiate the evaluation class, passing the reference alignment path 
+					//and the generated alignment
 					Evaluator eva = new Evaluator(refPath, outPath);
 					
 					listCon = exct.extract(domain.get_ontology());
@@ -247,6 +299,8 @@ public class Main {
 					mat.compare_dolce(listCon, listUp);
 					mat.out_rdf(domain, upper);
 					out.out_file(listCon);
+					//calls the evaluation process, this process print in the screen
+					//the F-Measure, Precision, Recall and Overall
 					eva.evaluate();
 					
 				} else if(technic == 2) {
@@ -332,15 +386,36 @@ public class Main {
 			}
 		} else {
 			System.out.println("Invalid arguments order, please try:\n" + 
-								"1°) domain ontology path\n" +
-								"2°) out file path\n" + 
-								"3°) top ontology selection [sumo or dolce]\n" +
+								"1º) domain ontology path\n" +
+								"2º) out file path\n" + 
+								"3º) top ontology selection [sumo or dolce]\n" +
 								"4º) technic selection [0, 1, 2 - the numbers correspond to a certain technic]\n" + 
-								"5°) reference alignment path [optional]");
+								"5º) reference alignment path [optional]");
+		}		
+	}
+
+//Verify the arguments method
+	
+	/*
+	 * Verifies if the arguments passed are in the right condition to execute the program
+	 */
+	public static void verify(String[] args) {
+		
+		if(args[0].contains("\\")) {
+			args[0] = args[0].replaceAll("\\", "/");
+		}
+		if(!args[0].endsWith(".owl")) {
+			args[0] = args[0].concat(".owl");
 		}
 		
-		
-		
+		if(args[1].contains("\\")) {
+			args[1] = args[1].replaceAll("\\", "/");
+		}
+		if(!args[1].endsWith(".rdf")) {
+			args[1] = args[1].concat(".rdf");
+		}
 	}
+	
+	
 				
 }

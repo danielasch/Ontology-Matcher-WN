@@ -2,9 +2,7 @@ package objects;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
 
 import org.semanticweb.owlapi.model.OWLClass;
 import org.semanticweb.owlapi.model.OWLClassExpression;
@@ -18,7 +16,7 @@ import resources.Utilities;
  */
 public class Concept {
 
-//Atributes 	
+//Attributes 	
 	
 	//OWLOntology
 	private OWLOntology ontology;
@@ -32,10 +30,6 @@ public class Concept {
 	private String ontologyName;
 	//Class name
 	private String className;
-	// Contains the tree of this concept, where the integer show the level of the tree.
-	// Positive integers are the super concepts, 0 is this concept and negative integers
-	//sub concepts.
-	private Map<String, Integer> distance;
 	//Concept annotation
 	private String desc;
 	//Concept context
@@ -55,7 +49,6 @@ public class Concept {
 //Constructor
 	
 	public Concept() {
-		this.distance = new TreeMap<String, Integer>();
 		this.context = new HashSet<String>();
 		this.ut = null;
 	}
@@ -107,14 +100,6 @@ public class Concept {
 	
 	public String get_className() {
 		return className;
-	}
-	
-	void set_distance(Map<String, Integer> map) {
-		distance = map;
-	}
-	
-	public Map<String, Integer> get_distance() {
-		return distance;
 	}
 	
 	protected void set_desc(String _desc) {

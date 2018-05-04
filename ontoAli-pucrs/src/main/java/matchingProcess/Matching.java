@@ -21,16 +21,31 @@ import objects.Concept;
 import objects.ConceptManager;
 import objects.Ontology;
 
+/*
+ * This class matches Domain Ont. classes with Top Ont. classes
+ */
 public class Matching {
 
+//Attributes
+	
+	//Map list
 	private List<Mapping> listMap;
+	//path to write the rdf file
 	private String localfile;
+
+//Constructor	
 	
 	public Matching(String _file) {
-		SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
-		System.out.println(sdf.format(Calendar.getInstance().getTime()) + " - [log] - Matcher selected!" );
+		log();
 		listMap = null;
 		localfile = _file;
+	}
+
+//Log methods	
+	
+	private void log() {
+		SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
+		System.out.println(sdf.format(Calendar.getInstance().getTime()) + " - [log] - Matcher selected!" );
 	}
 	
 	private void init_log() {
@@ -48,7 +63,12 @@ public class Matching {
 		System.out.println(sdf.format(Calendar.getInstance().getTime()) + " - [log] - RDF file generated!" );
 	}
 
+//Methods
 	
+	/*
+	 * Turn the mapping class into a string
+	 * to write the rdf file
+	 */
 	private String toRDF(Mapping m) {
 		
 		String out = "\t<map>\n" +
@@ -61,6 +81,9 @@ public class Matching {
 		return out;		
 	}
 	
+	/*
+	 * Writes the rdf file
+	 */
 	public void out_rdf(Ontology onto1, Ontology onto2) {
 		
 		try {
@@ -88,7 +111,7 @@ public class Matching {
 		
 			for(Mapping m: listMap) {
 				if(!m.get_measure().equals("false")) {
-					print.print(toRDF(m));				//adc if
+					print.print(toRDF(m));
 				}
 			}
 		
@@ -102,7 +125,12 @@ public class Matching {
 			
 		}
 	}
-	//funções para DOLCE//
+
+//Methods
+	
+	/*
+	 * extract the supper class of a OWLClass
+	 */
 	private OWLClassExpression extract_superClass(OWLClass cls, OWLOntology onto) {
 		
 		OWLClassExpression last = null;
@@ -134,55 +162,61 @@ public class Matching {
 		}
 		return last;
 	}
-		
+	
+	/*
+	 * Search for the alignment in DOLCE and DUL and generates the mapping	
+	 */
 	public void compare_dolce(List<Concept> domain, List<Concept> upper) {
+		//creates a local list of mapping class
 		List<Mapping> listM = new ArrayList<Mapping>();
 		ConceptManager man = new ConceptManager();
+		//last will reaceive the concept of higher level of DOLCE
 		OWLClassExpression last = null;
+		//owlUpper receive the OWLOntology of DOLCE
 		OWLOntology owlUpper = upper.get(0).get_owlOntology();
-		init_log();
-		for(Concept cnp_1: domain) {
 		
+		init_log();
+		
+		for(Concept cnp_1: domain) {
+			//instantiate the mapping class
 			Mapping map = new Mapping();
+			//synset receive the disambiguated synset of cnp_1
 			ISynset synset = cnp_1.get_goodSynset();
-			//cnp_1.print_info();
-
+			
 			if(synset != null) {
+				//cls will receive the OWLClass aligned to cnp_1
 				OWLClass cls = new_search(cnp_1, upper);
-			
-				if(cls != null) {
-					//System.out.println("Ali Concept: " + cls.getIRI().getFragment().toString());
-					last = extract_superClass(cls, owlUpper);
 				
+				if(cls != null) {
+					//last receive the higher level concept of the top onto. concept
+					last = extract_superClass(cls, owlUpper);
+					
 					if(last != null) {
-						//System.out.println("Ali Concept Top: " + last.asOWLClass().getIRI().getFragment().toString());
+						//sets the alignment of cnp_1
 						man.config_aliClass(cnp_1, last.asOWLClass());
-						//cnp_1.set_aliClass(last.asOWLClass());
 					} else {
+						//sets the alignment of cnp_1
 						man.config_aliClass(cnp_1, cls);
-						//cnp_1.set_aliClass(cls);
 					}
-			
+					//sets the mapping source
 					map.set_source(cnp_1.get_owlClass().getIRI().toString());
-					map.set_target(cnp_1.get_aliClass().getIRI().toString());		//alterado de ali.toString || alterado de get_classID
+					//sets the mapping target
+					map.set_target(cnp_1.get_aliClass().getIRI().toString());
+					//sets the mapping realtion
 					map.set_relation("&lt;");
-					//map.set_relation("=");
-					//map.set_relation("<");
-					//map.set_measure("true");
+					//sets the mapping measure
 					map.set_measure("1.0");
-			
-					//System.out.println("-----------");
+					//add the mapping into a list
 					listM.add(map);
 				} else {
-					//System.out.println("Ali Concept: " + "null");
+					//sets the alignment of cnp_1 as null
 					man.config_aliClass(cnp_1, null);
-					//cnp_1.set_aliClass(null);
+
 					map.set_source(cnp_1.get_classID());
 					map.set_target("null");
 					map.set_relation("null");
 					map.set_measure("false");
-				
-					//System.out.println("-----------");
+					//add the mapping into a list
 					listM.add(map);
 				}
 			} else {
@@ -191,40 +225,49 @@ public class Matching {
 				map.set_target("null");
 				map.set_relation("null");
 				map.set_measure("false");
-			
-				//System.out.println("-----------");
+				//add the mapping into a list
 				listM.add(map);
 			}
 		}
+		//listMap receive the local list of mappings
 		this.listMap = listM;
 		final_log();
 	}
-		
+	
+	/*
+	 * Search for the Top ontology class that matches the synset selected,
+	 * comparing the description of the Top Ont. concept and the gloss of the synset. 
+	 */
 	private OWLClass new_search(Concept cnp_1, List<Concept> topConceptList) {			
 		OWLClass clss = null;
 		Set<String> glossList = new HashSet<String>();
+		//gloss receive the gloss of the synset of cnp_1
 		String gloss = cnp_1.get_goodSynset().getGloss();
 
 		int max = 0;
+		//glossList contains all tokens of gloss
 		glossList = sp_string(gloss);
+		//removes some chars of glossList
 		glossList = rm_specialChar(glossList);
-		//System.out.println(glossList);
+		
 		for(Concept cnp_2: topConceptList) {
 			if(cnp_2.get_desc() != null) {
 				
 				Set<String> descList = new HashSet<String>();
 				int size = 0;
-				
+				//desc receive the description of cnp_2 (top onto. concept)
 				String desc = cnp_2.get_desc();
+				//descList contains all tokens of desc
 				descList = sp_string(desc); 
-			
+				//removes some chars of DescList
 				descList = rm_specialChar(descList);
+				//size will receive the numbers of overlaps between two list
 				size = intersection(glossList, descList);
-				if(size != 1) {	//para evitar matching por uma palavra relacionada na intersecção 
+				//size must be different than 1, to avoid intersection with one overlap 
+				if(size != 1) {	
 					if(size > max) {
 						max = size;
 						clss = cnp_2.get_owlClass();
-						//System.out.println(descList + " | " + size);
 					}
 				}			 
 			}
@@ -233,6 +276,9 @@ public class Matching {
 		return clss;
 	}
 	
+	/*
+	 * removes some characters of a set of strings
+	 */
 	private Set<String> rm_specialChar(Set<String> list) {
 		
 		Set<String> temp = new LinkedHashSet<String>();
@@ -265,7 +311,7 @@ public class Matching {
 			}        
         
 			if(word.contains("'s")) {
-				word = word.replace("'s", "");		//adc remo��o " 's "
+				word = word.replace("'s", "");
 			}
         
 			if(word.contains("'")) {
@@ -298,6 +344,9 @@ public class Matching {
         return list;	
 	}
 	
+	/*
+	 * Split strings separated by space or �
+	 */
 	private Set<String> sp_string(String str) {
 		Set<String> temp= new HashSet<String>();
 
@@ -309,6 +358,9 @@ public class Matching {
 			return temp;
 		}
 	
+	/*
+	 * Overlapping between two lists
+	 */
 	private int intersection(Set<String> list_1, Set<String> list_2) {
 		int inter = 0;
 		
@@ -326,75 +378,98 @@ public class Matching {
 		return inter;
 	}
 	
-	//funções para SUMO//
+	/*
+	 * Search for the alignment in SUMO
+	 */
 	public void compare_sumo(List<Concept> domain, List<Concept> upper) {
+		//creates a local list of mapping class
 		List<Mapping> listM = new ArrayList<Mapping>();
 		ConceptManager man = new ConceptManager();
+		//last will receive the concept of higher level of SUMO
 		OWLClass last = null;
 		init_log();
 		for(Concept cnp_1: domain) {
+			//instantiate the mapping class
 			Mapping map = new Mapping();
+			//synset receive the disambiguated synset of cnp_1
 			ISynset synset = cnp_1.get_goodSynset();
 
 			if(synset != null) {
+				//code receive the synset code
 				String code = "" + synset.getOffset();
+				//synset code fixation
 				code = code_fixation(code);
+				//reads the WordNet mapping to SUMO
 				try(BufferedReader br = new BufferedReader(new FileReader("resources/WordNetMappings30-noun.txt"))) {
-					String line = "FIRST READ";			// = br.readLine();
+					String line = "init";
+
 					while ((line = br.readLine()) != null) {
+						
 						if(line.startsWith(code)) {
 							String aux = null;
-							//System.out.println(line);
+							//aux receive the name and the relation of the concept aligned to the synset of cnp_1
 							aux = rc_alignment(line);
-							
-							map.set_source(cnp_1.get_owlClass().getIRI().toString());	//*
+							//set mapping source
+							map.set_source(cnp_1.get_owlClass().getIRI().toString());
+							//aux receive the name of the concept aligned to the synset
 							last = rc_upperConcept(aux, upper);
-							if(last != null) {
-								man.config_aliClass(cnp_1, last);
-								
-								map.set_target(cnp_1.get_aliClass().getIRI().toString());
 							
+							if(last != null) {
+								//sets Top Ont. concept align class of cnp_1 as last
+								man.config_aliClass(cnp_1, last);
+								//sets the mapping target
+								map.set_target(cnp_1.get_aliClass().getIRI().toString());
+								//sets the relation
 								if(aux.endsWith("=")) {
 									map.set_relation("&lt");
 								} else if(aux.endsWith("+")) {
 									map.set_relation("&gt;");
 								}
 								map.set_measure("1.0");
+								//add the mapping into a list
 								listM.add(map);
 								break;
+							//sets the mapping for last == null	
 							} else {
 								man.config_aliClass(cnp_1, null);
 								map.set_source(cnp_1.get_owlClass().getIRI().toString());
 								map.set_target("null");
 								map.set_relation("null");
 								map.set_measure("false");
+								//add the mapping into a list
 								listM.add(map);
 							}
 						}
 					}
 					br.close();
 				} catch(FileNotFoundException e) {
-			    	System.out.println("Arquivo da SUMO não encontrado!");
+			    	System.out.println("WordNetMappings30-ouns.txt file not found!");
 			    	System.out.println("erro: " + e);
 			    } catch (IOException e) {
-			    	System.out.println("Operação I/O interrompida, no arquivo da SUMO!");
+			    	System.out.println("I/O operation failed on WordNetMappings30-ouns.txt file!");
 			    	System.out.println("erro: " + e);
 			    }
-					
+			//set the mapping for synset == null		
 			} else {
+			//sets the align Class of cnp_1 as null	
 			man.config_aliClass(cnp_1, null);
 			
 			map.set_source(cnp_1.get_owlClass().getIRI().toString());
 			map.set_target("null");
 			map.set_relation("null");
 			map.set_measure("false");
+			//add the mapping into a list
 			listM.add(map);
 			}
 		}
+		//listMap receive the local list of mappings
 		this.listMap = listM;
 		final_log();
 	}
 	
+	/*
+	 * Recover OWLClass that has the same name as the line
+	 */
 	private OWLClass rc_upperConcept(String line, List<Concept> upper) {
 		if(line.endsWith("=")) {
 			line = line.replace("=", "");
@@ -408,7 +483,10 @@ public class Matching {
 		}
 		return null;
 	}
-		
+	
+	/*
+	 * Fix the synset code, turning the code into 8 digits.
+	 */
 	private String code_fixation(String code) {
 		if(code.length() == 7) {
 			code = "0" + code;
@@ -428,6 +506,9 @@ public class Matching {
 		return code;
 	}
 	
+	/*
+	 * Recover the name of the alignment class in the text file
+	 */
 	private String rc_alignment(String line) {
 		String aux;
 		int i = line.indexOf("&%");

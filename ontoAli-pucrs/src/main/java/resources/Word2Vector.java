@@ -7,7 +7,7 @@ import org.deeplearning4j.models.embeddings.loader.WordVectorSerializer;
 import org.deeplearning4j.models.word2vec.Word2Vec;
 
 /*
- * This class is used to red the Word Embeddings model
+ * This class is used to read the Word Embeddings model
  */
 public class Word2Vector {
 	

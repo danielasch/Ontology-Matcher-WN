@@ -21,6 +21,7 @@ import objects.Concept;
 import objects.ConceptManager;
 import objects.Ontology;
 
+
 /*
  * This class matches Domain Ont. classes with Top Ont. classes
  */
@@ -397,10 +398,12 @@ public class Matching {
 			if(synset != null) {
 				//code receive the synset code
 				String code = "" + synset.getOffset();
+			
 				//synset code fixation
 				code = code_fixation(code);
 				//reads the WordNet mapping to SUMO
-				try(BufferedReader br = new BufferedReader(new FileReader("resources/WordNetMappings30-noun.txt"))) {
+				try {
+					BufferedReader br = new BufferedReader(new FileReader("resources/WordNetMappings30-noun.txt"));
 					String line = "init";
 
 					while ((line = br.readLine()) != null) {

@@ -1,6 +1,7 @@
 package resources;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -20,6 +21,8 @@ public class Utilities {
 	//This list saves the averages between the context and the bag of words of a synset
 	//Only used on the Word Embeddigs technique
 	private List<Double> listMedia;
+	
+	private LinkedHashMap<ISynset, LinkedHashMap<String, LinkedHashMap<String, Double> > > mapPairSim;
 
 //Constructor	
 	
@@ -27,6 +30,7 @@ public class Utilities {
 		this.synsetCntxt = null;
 		this.numSy = 0;
 		this.listMedia = null;
+		this.mapPairSim = null;
 	}
 	
 //Getters and setters
@@ -53,6 +57,14 @@ public class Utilities {
 	
 	public List<Double> get_synsetMedia() {
 		return listMedia;
+	}
+	
+	public void set_pairSim(LinkedHashMap<ISynset, LinkedHashMap<String, LinkedHashMap<String, Double> > > _mapPairSim) {
+		this.mapPairSim = _mapPairSim;
+	}
+	
+	public LinkedHashMap<ISynset, LinkedHashMap<String, LinkedHashMap<String, Double> > > get_pairSim() {
+		return mapPairSim;
 	}
 
 }

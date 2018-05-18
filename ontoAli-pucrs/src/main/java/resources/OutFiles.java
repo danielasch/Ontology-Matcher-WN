@@ -4,6 +4,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map.Entry;
 
@@ -114,6 +115,50 @@ public class OutFiles {
 		arq.close();
 		} catch(IOException e) {
 			System.out.println("Operação I/O interrompida, no arquivo de saída syCNTXT!");
+	    	System.out.println("erro: " + e);
+		}
+	}
+	
+	public void out_file_we_pair(List<Concept> listDomain) {
+		try {
+			FileWriter arq = new FileWriter(this.outPath);
+			PrintWriter printer = new PrintWriter(arq);
+			
+			for(Concept cnp: listDomain) {
+				printer.print("NOME: " + cnp.get_className() + "\n");
+				printer.print("Desc: " + cnp.get_desc() + "\n");
+				printer.print("Supers: " + cnp.get_supers() + "\n");
+				printer.print("Subs: " + cnp.get_subs() + "\n");
+				printer.print("Contexto: " + cnp.get_context() + "\n");
+				printer.print("Conceito Topo alinhado: " + cnp.get_aliClass() + "\n");
+				printer.print("Synset selecionado: " + cnp.get_goodSynset() + "\n");
+				printer.print("Conjunto de synsets recuperados:\n");
+				
+				int index = 0;
+				for(Entry<ISynset, LinkedHashMap<String, LinkedHashMap<String, Double>> > entry : cnp.get_utilities().get_pairSim().entrySet()) {
+					LinkedHashMap<String, LinkedHashMap<String, Double>> value = entry.getValue();
+					printer.print(entry.getKey() + "\n");
+					//printer.print("\tELEMENTO CONTEXTO" + "\n");
+					
+					for(Entry<String, LinkedHashMap<String, Double>> entry2: value.entrySet()) {
+						LinkedHashMap<String, Double> value2 = entry2.getValue();
+						printer.print("\t" + entry2.getKey() + ": ");
+						
+						for(Entry<String, Double> entry3: value2.entrySet()) {
+							printer.print("\t" + entry3.getKey() + ":" + entry3.getValue().floatValue() + ";\t");
+						}
+						printer.print("\n");
+					}
+					printer.print("MEDIA FINAL: " + cnp.get_utilities().get_synsetMedia().get(index).floatValue());
+					printer.print("\n\n");
+					index++;
+				}
+				printer.print("----------\n");
+				
+			}
+		arq.close();
+		} catch(IOException e) {
+			System.out.println("Operação I/O interrompida, no arquivo de saída syCNTXTPair!");
 	    	System.out.println("erro: " + e);
 		}
 	}

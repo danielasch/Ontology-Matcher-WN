@@ -83,7 +83,7 @@ private BaseResource base;
 							IWord word = dict.getWord (wordId) ;
 						    ISynset synset = word.getSynset();
 						    //System.out.println("SY:" + synset);	
-						    List<ISynsetID> hypers = synset.getRelatedSynsets();
+						    List<ISynsetID> hypers = synset.getRelatedSynsets(); 
 						    
 						    IIndexWord idxWord_2 = dict.getIndexWord(cnp_2.get_className().toLowerCase(), POS.NOUN);
 						    if(idxWord_2 != null) {

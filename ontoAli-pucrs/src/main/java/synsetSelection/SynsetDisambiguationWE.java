@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.StringTokenizer;
@@ -83,8 +84,13 @@ public class SynsetDisambiguationWE {
 		Utilities ut = new Utilities();
 		//temp1 saves the synset and its bag of words (OutFiles use only)
 		LinkedHashMap<ISynset, List<String>> temp1 = new LinkedHashMap<ISynset, List<String>>();
+		
 		//temp2 saves the averages between the context and the bag of words of a concept (OutFiles use only)
 		ArrayList<Double> temp2 = new ArrayList<Double>();
+		
+		LinkedHashMap<ISynset, LinkedHashMap<String, LinkedHashMap<String, Double> > > temp3 = new LinkedHashMap<ISynset, LinkedHashMap<String, LinkedHashMap<String, Double> > >();
+		LinkedHashMap<String, LinkedHashMap<String, Double> > temp4 = new LinkedHashMap<String, LinkedHashMap<String, Double> >();
+		LinkedHashMap<String, Double> temp5 = new LinkedHashMap<String, Double>();
 		
 		List<String> context = slem.toList(concept.get_context());
 		//name receive the concept name
@@ -136,7 +142,9 @@ public class SynsetDisambiguationWE {
 		                	//case similarity is null
 		                    aux1 = aux1 + 0;
 		                }
+			    		temp5.put(bgwEl, sim * 10);
 			    	}
+			    	temp4.put(cntxtEl, temp5);
 			    //makes the average between context element and all bag of words elements,
 			    //dividing aux1 by the bag of words size
 			    aux1 = aux1 / bagSynset.size();
@@ -155,6 +163,7 @@ public class SynsetDisambiguationWE {
 			    	//sets the synset of a concept
 			    	man.config_synset(concept, synset);
 			    }
+			    temp3.put(synset, temp4);
 			}
 		}
 		//closes the IDictionary
@@ -163,6 +172,8 @@ public class SynsetDisambiguationWE {
 		ut.set_synsetCntx(temp1);
 		//utilities sets the total average list
 		ut.set_synsetMedia(temp2);
+		
+		ut.set_pairSim(temp3);
 		//sets the utilities of a concept
 		man.config_utilities(concept, ut);
 	}
@@ -171,7 +182,7 @@ public class SynsetDisambiguationWE {
 	 * create the bag of words of a synset
 	 */
 	private List<String> createBagWords(List<IWord> wordsSynset, String glossSynset) {
-	    List<String> list = new ArrayList<String>();
+	    List<String> list = new LinkedList<String>();
 	    Set<String> set = new HashSet<String>();
 	    StanfordLemmatizer slem = this.base.get_lemmatizer();
 	    for (IWord i : wordsSynset) {

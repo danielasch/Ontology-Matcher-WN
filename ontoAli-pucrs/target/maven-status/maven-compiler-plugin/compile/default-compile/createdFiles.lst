@@ -4,14 +4,12 @@ resources\OutFiles.class
 objects\Ontology.class
 synsetSelection\SynsetDisambiguation.class
 resources\StanfordLemmatizer.class
-resources\BaseSynset.class
 resources\BaseResource.class
 resources\Evaluator.class
 objects\Concept.class
 resources\Word2Vector.class
 synsetSelection\SynsetDisambiguationWE2.class
 conceptExtraction\ContextProcessing.class
-conceptExtraction\DefaultExtraction.class
 matchingProcess\Mapping.class
 matchingProcess\Matching.class
 synsetSelection\SynsetDisambiguationWE.class

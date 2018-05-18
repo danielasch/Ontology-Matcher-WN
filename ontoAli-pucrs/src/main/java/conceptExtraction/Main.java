@@ -112,7 +112,7 @@ public class Main {
 					mat.compare_dolce(listCon, listUp);
 					mat.out_rdf(domain, upper);
 					//generates the text file referent to the technique selected
-					out.out_file_we(listCon);
+					out.out_file_we_pair(listCon);
 				
 				//number 3 - developing 	
 				} else if(technic == 3) {
@@ -175,7 +175,7 @@ public class Main {
 					disamWE.disambiguation(listCon);
 					mat.compare_sumo(listCon, listUp);
 					mat.out_rdf(domain, upper);
-					out.out_file_we(listCon);
+					out.out_file_we_pair(listCon);
 					
 				} else if(technic == 3) {
 					List<Concept> listCon = new ArrayList<Concept>();
@@ -235,7 +235,7 @@ public class Main {
 					disamWE.disambiguation(listCon);
 					mat.compare_dolce(listCon, listUp);
 					mat.out_rdf(domain, upper);	
-					out.out_file_we(listCon);
+					out.out_file_we_pair(listCon);
 					
 				} else if(technic == 3) {
 					List<Concept> listCon = new ArrayList<Concept>();
@@ -399,7 +399,7 @@ public class Main {
 	/*
 	 * Verifies if the arguments passed are in the right condition to execute the program
 	 */
-	public static void verify(String[] args) {
+	private static void verify(String[] args) {
 		
 		if(args[0].contains("\\")) {
 			args[0] = args[0].replaceAll("\\", "/");
@@ -411,9 +411,28 @@ public class Main {
 		if(args[1].contains("\\")) {
 			args[1] = args[1].replaceAll("\\", "/");
 		}
-		if(!args[1].endsWith(".rdf")) {
-			args[1] = args[1].concat(".rdf");
+		
+		if(!args[1].endsWith("/")) {
+			args[1] = args[1].concat("/");
 		}
+		args[1] = verifyRDF(args);
+	}
+	
+	private static String verifyRDF(String[] args) {
+		String outFile = args[1];
+
+		int sIndex = args[0].lastIndexOf("/");
+		int eIndex = args[0].lastIndexOf(".");
+		String aux = args[0].substring(sIndex + 1, eIndex);
+
+		outFile = outFile.concat(aux + "-" + args[2]);
+		if(args[3].equals("2")) {
+			outFile = outFile.concat("-WE.rdf");
+		} else {
+			outFile = outFile.concat(".rdf");
+		}
+
+		return outFile;
 	}
 	
 	

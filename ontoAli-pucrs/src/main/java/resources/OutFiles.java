@@ -137,17 +137,17 @@ public class OutFiles {
 				int index = 0;
 				for(Entry<ISynset, LinkedHashMap<String, LinkedHashMap<String, Double>> > entry : cnp.get_utilities().get_pairSim().entrySet()) {
 					LinkedHashMap<String, LinkedHashMap<String, Double>> value = entry.getValue();
-					printer.print(entry.getKey() + "\n");
-					//printer.print("\tELEMENTO CONTEXTO" + "\n");
+					printer.print("\n" + entry.getKey() + "\n");
+					printer.print(String.format("%20s%16s\r\n", "ELEMENTO CONTEXTO|", "BAG OF WORDS"));
 					
 					for(Entry<String, LinkedHashMap<String, Double>> entry2: value.entrySet()) {
 						LinkedHashMap<String, Double> value2 = entry2.getValue();
-						printer.print("\t" + entry2.getKey() + ": ");
+						printer.print(String.format("%20s", entry2.getKey() + "|"));
 						
 						for(Entry<String, Double> entry3: value2.entrySet()) {
-							printer.print("\t" + entry3.getKey() + ":" + entry3.getValue().floatValue() + ";\t");
+							printer.print("    " + entry3.getKey() + ":" + entry3.getValue().floatValue() + ";");
 						}
-						printer.print("\n");
+						printer.print("\n\n");
 					}
 					printer.print("MEDIA FINAL: " + cnp.get_utilities().get_synsetMedia().get(index).floatValue());
 					printer.print("\n\n");

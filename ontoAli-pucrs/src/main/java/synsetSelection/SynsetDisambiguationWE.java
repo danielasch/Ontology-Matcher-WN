@@ -89,9 +89,7 @@ public class SynsetDisambiguationWE {
 		ArrayList<Double> temp2 = new ArrayList<Double>();
 		
 		LinkedHashMap<ISynset, LinkedHashMap<String, LinkedHashMap<String, Double> > > temp3 = new LinkedHashMap<ISynset, LinkedHashMap<String, LinkedHashMap<String, Double> > >();
-		LinkedHashMap<String, LinkedHashMap<String, Double> > temp4 = new LinkedHashMap<String, LinkedHashMap<String, Double> >();
-		LinkedHashMap<String, Double> temp5 = new LinkedHashMap<String, Double>();
-		
+				
 		List<String> context = slem.toList(concept.get_context());
 		//name receive the concept name
 		String name = man.conceptName_wn(concept);
@@ -114,7 +112,8 @@ public class SynsetDisambiguationWE {
 			for (IWordID wordId : wordIds) {
 				IWord word = dict.getWord (wordId) ;
 			    ISynset synset = word.getSynset();
-			    	
+			    LinkedHashMap<String, LinkedHashMap<String, Double> > temp4 = new LinkedHashMap<String, LinkedHashMap<String, Double> >();
+			    
 			    //wordsSynset receive the words that composes the synset
 			    List<IWord> wordsSynset = synset.getWords();
 			    //glossSynset receive the gloss of the synset
@@ -128,6 +127,8 @@ public class SynsetDisambiguationWE {
 			    temp1.put(synset, bagSynset);
 			    double auxT = 0;
 			    for(String cntxtEl: context) {
+			    	
+			    	LinkedHashMap<String, Double> temp5 = new LinkedHashMap<String, Double>();
 			    	double aux1 = 0;
 			    	//For each element of the bag of words
 			    	for(String bgwEl: bagSynset) {

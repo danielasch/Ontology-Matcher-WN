@@ -424,7 +424,7 @@ public class Matching {
 								map.set_target(cnp_1.get_aliClass().getIRI().toString());
 								//sets the relation
 								if(aux.endsWith("=")) {
-									map.set_relation("&lt");
+									map.set_relation("&lt;");
 								} else if(aux.endsWith("+")) {
 									map.set_relation("&gt;");
 								}

@@ -2,6 +2,8 @@ package objects;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 
 import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.model.IRI;
@@ -33,7 +35,9 @@ public class Ontology {
 	*/
 	public Ontology(String _file) {
 		try {
+			init_log();
 			shouldLoad(_file);
+			final_log();
 		} catch(OWLOntologyCreationException e) {
 			System.out.println("Failed to load ontology: " + _file);
 			System.out.println("erro: " + e);
@@ -45,6 +49,18 @@ public class Ontology {
 			System.out.println("erro: " + e);
 		}
 
+	}
+	
+//Log Methods
+	
+	private void init_log() {
+        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
+		System.out.println(sdf.format(Calendar.getInstance().getTime()) + " - [log] - Loading ontology..." );
+	}
+	
+	private void final_log() {
+        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
+		System.out.println(sdf.format(Calendar.getInstance().getTime()) + " - [log] - Ontology loaded!" );
 	}
 	
 //Getters and setters
@@ -103,14 +119,15 @@ public class Ontology {
 		set_ontologyManager(manager);
 		set_ontology(local);
 		
-		System.out.println("Loaded Ontology: " + local);
-		System.out.println("From: " + documentoIRI + "\n");
+		//System.out.println("Loaded Ontology: " + local);
+		//System.out.println("From: " + documentoIRI + "\n");
 		
 		OWLOntologyID ID = local.getOntologyID();
 		set_ontologyID(ID);
 		
-		System.out.println(ID);
-		System.out.println(ID.getOntologyIRI() + "\n");		
+		//System.out.println(ID);
+		System.out.println("\nOntology loaded: " + ID.getOntologyIRI());
+		System.out.println("From: " + documentoIRI + "\n");
 	}
 	
 }

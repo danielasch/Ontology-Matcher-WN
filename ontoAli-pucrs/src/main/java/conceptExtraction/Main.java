@@ -290,7 +290,7 @@ public class Main {
 					Matching mat = new Matching(outPath);
 					//instantiate the evaluation class, passing the reference alignment path 
 					//and the generated alignment
-					Evaluator eva = new Evaluator(refPath, outPath);
+					Evaluator eva = new Evaluator(refPath, outPath);//****
 					
 					listCon = exct.extract(domain.get_ontology());
 					listUp = exct.extract_upper(upper.get_ontology());
@@ -332,7 +332,7 @@ public class Main {
 				
 			} else if(topOntoSelection.toLowerCase().equals("sumo")) {
 				Ontology domain = new Ontology(domainPath);
-				Ontology upper = new Ontology("resources/sumo.owl");
+				Ontology upper = new Ontology("resources/sumo-2.owl");
 				OutFiles out = new OutFiles(outPath);
 				if(technic == 0) {
 					

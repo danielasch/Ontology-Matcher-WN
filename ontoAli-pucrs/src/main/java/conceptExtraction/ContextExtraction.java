@@ -61,39 +61,48 @@ public class ContextExtraction {
 		ConceptManager man = new ConceptManager();
 		
 		for(OWLClass owlClass: onto.getClassesInSignature()) {
-			//instantiate the Concept class
-			Concept concept = new Concept();
-			Set<String> context = new HashSet<String>();
-			String desc = null;
-            List<OWLClassExpression> listSup = new ArrayList<OWLClassExpression>();
-            List<OWLClassExpression> listSub = new ArrayList<OWLClassExpression>();
-			//sets the ontology into the concept class
-            man.config_owlOntology(concept, onto);
-            //sets the owlclass into the concept class
-			man.config_owlClass(concept, owlClass);
-			//sets the owlclassID into the concept class
-			man.config_classId(concept, owlClass.toString());
-			//sets the owlclass name into the concept class
-			man.config_className(concept, owlClass.getIRI().getFragment());
+			if(!owlClass.isTopEntity()) {
 
-            //adds the concept name into the context
-            context.add(owlClass.getIRI().getFragment());
-			//desc receive the annotation of a concept
-			desc = extract_annotation(onto, owlClass, context);
-			//sets the description into the concept class
-			man.config_description(concept, desc);
-			//extracts the super-owlclasses
-			extract_superClass(onto, owlClass, context, listSup);
-			//extracts the sub-owlclasses
-			extract_subClass(onto, owlClass, context, listSub);
-			//sets the context list into a cocnept class
-			man.config_context(concept, context);
-			//sets the super-owlclasses list into a concept class
-			man.config_supers(concept, listSup);
-			//sets the sub-owlclasses list into a concept class
-			man.config_subs(concept, listSub);
-			//adds the Concept into a list
-			listCon.add(concept);
+				//instantiate the Concept class
+				Concept concept = new Concept();
+				Set<String> context = new HashSet<String>();
+				String desc = null;
+            	List<OWLClassExpression> listSup = new ArrayList<OWLClassExpression>();
+            	List<OWLClassExpression> listSub = new ArrayList<OWLClassExpression>();
+				
+            	//extracts the super-owlclasses
+				extract_superClass(onto, owlClass, context, listSup);
+
+            	if(listSup.isEmpty() || verifyTHING(listSup)) {         		
+            		//sets the ontology into the concept class
+            		man.config_owlOntology(concept, onto);
+            		//sets the owlclass into the concept class
+					man.config_owlClass(concept, owlClass);
+					//sets the owlclassID into the concept class
+					man.config_classId(concept, owlClass.toString());
+					//sets the owlclass name into the concept class
+					man.config_className(concept, owlClass.getIRI().getFragment());
+
+            		//adds the concept name into the context
+            		context.add(owlClass.getIRI().getFragment());
+					//desc receive the annotation of a concept
+					desc = extract_annotation(onto, owlClass, context);
+					//sets the description into the concept class
+					man.config_description(concept, desc);
+						//extracts the super-owlclasses
+						//extract_superClass(onto, owlClass, context, listSup);
+					//extracts the sub-owlclasses
+					extract_subClass(onto, owlClass, context, listSub);
+					//sets the context list into a cocnept class
+					man.config_context(concept, context);
+					//sets the super-owlclasses list into a concept class
+					man.config_supers(concept, listSup);
+					//sets the sub-owlclasses list into a concept class
+					man.config_subs(concept, listSub);
+					//adds the Concept into a list
+					listCon.add(concept);
+            	}
+			}
 		}
 		final_log();
 		return listCon;
@@ -260,6 +269,16 @@ public class ContextExtraction {
 		}
 		
 		return aux;
+	}
+	
+	/*
+	 * Verifies if the list contains owl:Thing
+	 */
+	private boolean verifyTHING(List<OWLClassExpression> list) {
+		if(list.get(list.size() -1).asOWLClass().isTopEntity()) {
+			return true;
+		}
+		return false;
 	}
 	
 	/*

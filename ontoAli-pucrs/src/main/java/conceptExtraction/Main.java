@@ -10,9 +10,13 @@
 ****************************************************/
 package conceptExtraction;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.apache.commons.io.output.TeeOutputStream;
 
 import matchingProcess.Matching;
 import objects.Concept;
@@ -420,19 +424,41 @@ public class Main {
 	
 	private static String verifyRDF(String[] args) {
 		String outFile = args[1];
-
+		String outFileLog = args[1];
+		
 		int sIndex = args[0].lastIndexOf("/");
 		int eIndex = args[0].lastIndexOf(".");
 		String aux = args[0].substring(sIndex + 1, eIndex);
 
 		outFile = outFile.concat(aux + "-" + args[2]);
+		outFileLog = outFileLog.concat("out-" + aux + "-" + args[2]);
+		
 		if(args[3].equals("2")) {
 			outFile = outFile.concat("-WE.rdf");
+			outFileLog = outFileLog.concat("-WE.txt");
 		} else {
 			outFile = outFile.concat(".rdf");
+			outFileLog = outFileLog.concat(".txt");
 		}
-
+		
+		outputStream(outFileLog);
 		return outFile;
+	}
+	
+	private static void outputStream(String outFileLog) {
+		try {
+			FileOutputStream fos = new FileOutputStream(outFileLog);
+			try {
+				fos.flush();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			TeeOutputStream tos = new TeeOutputStream(System.out, fos);
+			PrintStream ps = new PrintStream(tos);
+			System.setOut(ps);
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	

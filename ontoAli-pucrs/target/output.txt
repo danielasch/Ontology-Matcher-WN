@@ -1,0 +1,38 @@
+14:13:52 - [log] - Loading ontology...
+
+Ontology loaded: http://cmt
+From: file:/C:/Users/PLN/Desktop/Workspace/resources/Ontologias/Conference2017/cmt.owl
+
+14:13:53 - [log] - Ontology loaded!
+14:13:53 - [log] - Loading ontology...
+
+Ontology loaded: file:/C:/Users/PLN/Desktop/Workspace/projetos/ontoAli-pucrs-2/resources/wnNounsyn_v7.owl
+From: file:/C:/Users/PLN/Desktop/Workspace/projetos/ontoAli-pucrs-2/resources/wnNounsyn_v7.owl
+
+14:13:56 - [log] - Ontology loaded!
+14:13:56 - [log] - Initializing resources!
+14:13:56 - [log] - Reading Stop Words...
+14:13:56 - [log] - Accessing WordNet...
+14:13:56 - [log] - Initializing Lemmatizer...
+14:13:58 - [log] - Reading Word2Vec Model!
+14:14:18 - [log] - Context method selected!
+14:14:18 - [log] - Context process selected!
+14:14:18 - [log] - Synset didambiguation with Word embedding selected!
+14:14:18 - [log] - Matcher selected!
+14:14:18 - [log] - Extracting domain ontology classes...
+14:14:18 - [log] - Domain ontology classes Extracted!
+14:14:18 - [log] - Extracting upper ontology classes...
+14:14:18 - [log] - Upper ontology classes Extracted!
+14:14:18 - [log] - Processing the context...
+14:14:18 - [log] - Context processed!
+14:14:18 - [log] - Disambiguating Synsets...
+14:14:21 - [log] - Synsets disambiguated!
+14:14:21 - [log] - Matching ontologies...
+14:14:24 - [log] - Ontologies matched!
+14:14:24 - [log] - RDF file generated!
+14:14:24 - [log] - Evaluating the matching...
+REF - ALI:
+F-Measure: 0.5
+Precision:  0.625
+Recall: 0.4166666666666667
+Overall: 0.16666666666666663

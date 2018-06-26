@@ -73,7 +73,7 @@ public class ContextExtraction {
             	//extracts the super-owlclasses
 				extract_superClass(onto, owlClass, context, listSup);
 
-            	if(listSup.isEmpty() || verifyTHING(listSup)) {         		
+            	if(listSup.isEmpty() || verifyTHING(listSup)) { 
             		//sets the ontology into the concept class
             		man.config_owlOntology(concept, onto);
             		//sets the owlclass into the concept class
@@ -82,7 +82,6 @@ public class ContextExtraction {
 					man.config_classId(concept, owlClass.toString());
 					//sets the owlclass name into the concept class
 					man.config_className(concept, owlClass.getIRI().getFragment());
-
             		//adds the concept name into the context
             		context.add(owlClass.getIRI().getFragment());
 					//desc receive the annotation of a concept
@@ -275,7 +274,7 @@ public class ContextExtraction {
 	 * Verifies if the list contains owl:Thing
 	 */
 	private boolean verifyTHING(List<OWLClassExpression> list) {
-		if(list.get(list.size() -1).asOWLClass().isTopEntity()) {
+		if(list.get(0).asOWLClass().isTopEntity()) {
 			return true;
 		}
 		return false;

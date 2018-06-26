@@ -21,12 +21,12 @@ public class Ontology {
 	//Ontology file name
 	private String fileName;
 	//Ontology ID
-	protected OWLOntologyID ontologyID;
+	private OWLOntologyID ontologyID;
 	//OWLOntology loads the ontology file
-	protected OWLOntology ontology;
+	private OWLOntology ontology;
 	//Used to manipulate de ontology
-	protected OWLOntologyManager manager;
-		
+	private OWLOntologyManager manager;
+
 //Constructor
 		
 	/*

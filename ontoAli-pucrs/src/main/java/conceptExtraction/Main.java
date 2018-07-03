@@ -39,6 +39,7 @@ public class Main {
 	//arg 3 = tec - se 2:modelo [modelo = google ou glove]
 	//arg 4 = ref align
 	public static void main(String[] args) {
+		long start = sTime();
 		verify(args);
 		String model = sp_model(args);
 		int tec = Integer.parseInt(args[3]);
@@ -72,7 +73,7 @@ public class Main {
 						"5º) reference alignment path [optional]");
 				break;
 		}
-		time();
+		fTime(start);
 	}
 	
 	private static void wup(String[] args) {
@@ -306,11 +307,19 @@ public class Main {
 		}	
 	}
 	
-	private static void time() {
-		long time = System.currentTimeMillis();
-		time = time/1000;
-		System.out.println(time);
-		minute(time);
+//Execution time methods
+	
+	private static long sTime() {
+		long start = System.nanoTime();
+		return start;
+	}
+	
+	private static void fTime(long start) {
+		long end = System.nanoTime();
+		end = end - start;
+		end = end / 1000000000;
+		
+		minute(end);
 	}
 	private static void minute(long time) {
 		int aux = 0;
@@ -322,9 +331,10 @@ public class Main {
 			if(time < 0) {
 				sec = time + 60;
 				test = false;
+				aux--;
 			}
 		}
-		System.out.println(aux + ":" + sec);
+		System.out.println("Execution time: " + aux + ":" + sec);
 	}
 //Verify arguments method
 	
@@ -390,10 +400,14 @@ public class Main {
 	}
 	
 	private static String sp_model(String[] args) {
-		int aux = args[3].indexOf(":");
-		String model = args[3].substring(aux+1);
-		args[3] = args[3].substring(0, aux);
-		return model;
+		if(args[3].contains(":")) {
+			int aux = args[3].indexOf(":");
+			String model = args[3].substring(aux+1);
+			args[3] = args[3].substring(0, aux);
+			return model;
+		} else {
+			return "";
+		}
 	}
 	
 	

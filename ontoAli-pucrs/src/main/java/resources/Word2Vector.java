@@ -14,9 +14,9 @@ public class Word2Vector {
 //Attributes
 	
 	//Word Embedding model File, this file is located at resources folder
-	private File gModel = new File("resources/glove.6B.200d.txt");
+	private File gModel;
 	//Word2Vec contains the model read
-	private Word2Vec w2V = null;
+	private Word2Vec w2V;
 	
 //Log method
 	
@@ -27,8 +27,9 @@ public class Word2Vector {
 
 //Constructor
 	
-	protected Word2Vector() {
+	protected Word2Vector(String model) {
 		init_log();
+		verifyModel(model);
 		//read the w2v model from the gModel attribute (that contains the model file)
 		this.w2V = WordVectorSerializer.readWord2VecModel(gModel);
 	}
@@ -38,5 +39,14 @@ public class Word2Vector {
 		return this.w2V;
 	}
 	
-	
+	private void verifyModel(String model) {
+		switch(model.toLowerCase()) {
+			case "google": this.gModel = new File("resources/GoogleNews-vectors-negative300.bin.gz");
+				break;
+			case "glove": this.gModel = new File("resources/glove.6B.200d.txt");
+				break;
+			default: System.out.println("Word Embeddings model don't exist! Please choose [google or glove]");
+				break;
+		}
+	}
 }

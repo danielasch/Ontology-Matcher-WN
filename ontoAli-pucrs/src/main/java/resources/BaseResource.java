@@ -50,7 +50,7 @@ public class BaseResource {
 	 * This constructor receive an integer and select based on 
 	 * the technique select which resources should be initialized  
 	 */
-	public BaseResource(int x) {
+	public BaseResource(int x, String model) {
 		if(x == 1) {
 			init_log();
 			rd_StpWords();
@@ -62,7 +62,7 @@ public class BaseResource {
 			rd_StpWords();
 			rc_dictionary();
 			this.slem = new StanfordLemmatizer();
-			this.w2v = new Word2Vector();
+			this.w2v = new Word2Vector(model);
 		} else {
 			System.out.println("ERROR*****");
 		}

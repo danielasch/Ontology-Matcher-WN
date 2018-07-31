@@ -145,7 +145,7 @@ public class ContextExtraction {
 		List<OWLClassExpression> listSub = new ArrayList<OWLClassExpression>();
 		
 		for(OWLClass owlClass: onto.getClassesInSignature()) {
-			if (listSub.isEmpty()) {
+			if(listSub.isEmpty() && !owlClass.isOWLThing()) {
 				extract_subClass(onto, owlClass, null, listSub);
 				// instantiate the Concept class
 				Concept concept = new Concept();

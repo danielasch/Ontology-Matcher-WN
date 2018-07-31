@@ -138,17 +138,69 @@ public class ContextExtraction {
 		return listCon;
 	}
 	
+	protected List<Concept> extract_upperWE(OWLOntology onto) {
+		init_log_upper();
+		List<Concept> listCon = new ArrayList<Concept>();
+		ConceptManager man = new ConceptManager();
+		List<OWLClassExpression> listSub = new ArrayList<OWLClassExpression>();
+		
+		for(OWLClass owlClass: onto.getClassesInSignature()) {
+			if (listSub.isEmpty()) {
+				extract_subClass(onto, owlClass, null, listSub);
+				// instantiate the Concept class
+				Concept concept = new Concept();
+				Set<String> context = new HashSet<String>();
+				String desc = null;
+
+				// sets the ontology into the concept class
+				man.config_owlOntology(concept, onto);
+				// sets the owlclass into the concept class
+				man.config_owlClass(concept, owlClass);
+				// sets the owlclassID into the concept class
+				man.config_classId(concept, owlClass.toString());
+				// sets the owlclass name into the concept class
+				man.config_className(concept, owlClass.getIRI().getFragment());
+				// desc receive the annotation of a concept
+				desc = extract_annotation_upperWE(onto, owlClass, context);
+				// sets the description into the concept class
+				man.config_description(concept, desc);
+
+				context.add(owlClass.getIRI().getFragment());
+				man.config_context(concept, context);
+
+				// adds the concept into a list
+				listCon.add(concept);
+			}
+		}
+		final_log_upper();
+		return listCon;
+	}
+	
 	/*
 	 * Extracts the annotation of the top onto. concept
 	 */
+	private String extract_annotation_upperWE(OWLOntology onto, OWLClass cls, Set<String> context) {
+		String desc = null;
+		for(OWLAnnotation anno: cls.getAnnotations(onto)) {
+			//get the annotation at comment label
+			if(anno.getProperty().getIRI().getFragment().equals("comment") && anno != null && context != null) { 
+				String aux = anno.getValue().toString();
+				if(aux != null) {
+					desc = rm_suffix(aux);
+					context.add(desc);			
+				}
+			} 
+		}	
+		return desc;
+	}
+	
 	private String extract_annotation_upper(OWLOntology onto, OWLClass cls) {
 		String aux = null;
 		for(OWLAnnotation anno: cls.getAnnotations(onto)) {
-        	aux = anno.getValue().toString();
-        }
+		aux = anno.getValue().toString();
+		}
 		return aux;
 	}
-	
 	/*
 	 * Extracts the annotation of the domain ont. concept
 	 */
@@ -228,7 +280,7 @@ public class ContextExtraction {
 	 */
 	protected void extract_subClass(OWLOntology onto, OWLClass cls, Set<String> cntxt, List<OWLClassExpression> list) {
 		for(OWLClassExpression sub: cls.getSubClasses(onto)) {
-        	if(!sub.isAnonymous()) {
+        	if(!sub.isAnonymous() && cntxt != null) {
         		cntxt.add(sub.asOWLClass().getIRI().getFragment().toString());
         		list.add(sub);
         		
@@ -284,43 +336,52 @@ public class ContextExtraction {
 	 * Removes some chars of a string
 	 */
 	private String remove_specialChar(String word) {
-		String aux = word;
-		char x = '"';
-		String z = String.valueOf(x);
+		
+		if(!isSite(word)) {
+			String aux = word;
+			char x = '"';
+			String z = String.valueOf(x);
     	
-    	if(aux.contains("  ")) {
+			if(aux.contains("  ")) {
     		aux = aux.replaceAll("  ", " ");
-    	}
+			}
 
-    	if(aux.contains(z)) {
+			if(aux.contains(z)) {
     		aux = aux.replace(z, "");
-    	}
+			}
     	
-    	if(aux.contains(".")) {
+			if(aux.contains(".")) {
     		aux = aux.replace(".", " ");
-    	}
+			}
     	
-    	if(aux.contains(",")) {
+			if(aux.contains(",")) {
     		aux = aux.replace(",", "");
-    	}
+			}
     	
-    	if(aux.contains("?")) {		
+			if(aux.contains("?")) {		
     		aux = aux.replace("?", " ");
-    	}
+			}
     	
-    	if(aux.contains(":")) {
+			if(aux.contains(":")) {
     		aux = aux.replace(":", " ");
-		}
+			}
     	
-    	if(aux.contains("!")) {
+			if(aux.contains("!")) {
     		aux = aux.replace("!", " ");
-		}
+			}
     	
-    	if(aux.contains("  ")) {
+			if(aux.contains("  ")) {
     		aux = aux.replaceAll("  ", " ");
-    	}
-    	return aux;  	
+			}
+			return aux;
+		}
+		return word;
 	}
 	
-	
+	private boolean isSite(String word) {
+		if(word.contains("http:")) {
+			return true;
+		}
+		return false;
+	}
 }

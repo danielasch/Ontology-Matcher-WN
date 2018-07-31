@@ -19,6 +19,7 @@ import java.util.List;
 import org.apache.commons.io.output.TeeOutputStream;
 
 import matchingProcess.Matching;
+import matchingProcess.MatchingWE;
 import objects.Concept;
 import objects.Ontology;
 import resources.BaseResource;
@@ -59,6 +60,9 @@ public class Main {
 			case 5:
 				wup(args);
 				break;
+			case 6:
+				noWN(args, model);
+				break;
 			default:
 				System.out.println("Invalid arguments order, please try:\n" + 
 						"1º) domain ontology path\n" +
@@ -74,6 +78,38 @@ public class Main {
 				break;
 		}
 		fTime(start);
+	}
+	
+	private static void noWN(String[] args, String model) {
+		String topOnto = args[2].toLowerCase();
+		List<Concept> listDom = null;
+		List<Concept> listUp = null;
+		
+		Ontology domain = new Ontology(args[0]);
+		switch(topOnto) {
+			case "dolce":
+				Ontology upperD = new Ontology("resources/DOLCE-Lite.owl");
+
+				listDom = domain(domain);
+				listUp = dolceT(upperD);
+				//disamb(listDom);
+				matchWE(domain, upperD, args[1], listDom, listUp, model);
+				//out(args[1], listDom);
+				evaluate(args);
+				break;
+			case "sumo":
+				Ontology upperS = new Ontology("resources/SUMO.owl");
+				listDom = domain(domain);
+				listUp = sumoT(upperS);
+				//disamb(listDom);
+				matchWE(domain, upperS, args[1], listDom, listUp, model);
+				//out(args[1], listDom);
+				evaluate(args);
+				break;
+			default:
+				System.out.println("Invalid Upper Ontology selection! Choose SUMO, or DOLCE!");
+				break;
+		}
 	}
 	
 	private static void wup(String[] args) {
@@ -244,11 +280,28 @@ public class Main {
 		return listUp;
 	}
 	
+	private static List<Concept> dolceT(Ontology upperS) {
+		List<Concept> listUp = new ArrayList<Concept>();
+		
+		ContextExtraction exct = new ContextExtraction();
+		listUp = exct.extract_upperWE(upperS.get_ontology());
+		return listUp;
+	}
+	
+	
 	private static List<Concept> sumo(Ontology upperS) {
 		List<Concept> listUp = new ArrayList<Concept>();
 		
 		ContextExtraction exct = new ContextExtraction();
 		listUp = exct.extract_upper(upperS.get_ontology());
+		return listUp;
+	}
+	
+	private static List<Concept> sumoT(Ontology upperS) {
+		List<Concept> listUp = new ArrayList<Concept>();
+		
+		ContextExtraction exct = new ContextExtraction();
+		listUp = exct.extract_upperWE(upperS.get_ontology());
 		return listUp;
 	}
 	
@@ -269,6 +322,7 @@ public class Main {
 		disam.disambiguation(listDom);
 	}
 	
+	
 	private static void disambWE(List<Concept> listDom, String model) {
 		BaseResource base = new BaseResource(2, model);
 		ContextProcessing proc = new ContextProcessing(base);
@@ -276,6 +330,18 @@ public class Main {
 		
 		SynsetDisambiguationWE disam = new SynsetDisambiguationWE(base);
 		disam.disambiguation(listDom);
+	}
+	
+	private static void matchWE(Ontology domain, Ontology upper, String outPath, List<Concept> listDom, List<Concept> listUp, String model) {
+		BaseResource base = new BaseResource(2, model);
+		ContextProcessing proc = new ContextProcessing(base);
+		proc.procWE(listDom);
+
+		proc.procWE(listUp);
+
+		MatchingWE match = new MatchingWE(outPath, base);
+		match.match(listDom, listUp);
+		match.out_rdf(domain, upper);
 	}
 	
 	private static void matchDolce(Ontology domain, Ontology upper, String outPath, List<Concept> listDom, List<Concept> listUp) {

@@ -42,37 +42,27 @@ public class ContextProcessing {
 		System.out.println(sdf.format(Calendar.getInstance().getTime()) + " - [log] - Context processed!" );
 	}
 
-	
-	
-	
+//Methods - second process
 	
 	protected void procWE(List<Concept> listUp) {
-		//log
+		init_log();
 		
 		for(Concept cnp: listUp) {
 			start(cnp);
 		}
 		
-		//final_log
+		final_log();
 	}
 	
 	private void start(Concept cnp) {
-
-		//System.out.println("==========CNP==========");
-		//System.out.println(cnp.get_className());
 		ConceptManager cMan = new ConceptManager();
 		List<String> list = null;
 		Set<String> set = null;
 		list = token(cnp.get_context());
-		//System.out.println("To - " + list);
 		list = removal(list);
-		//System.out.println("Re - " + list);
 		list = separate(list);
-		//System.out.println("Se - " + list);
 		set = lemma(list);
-		//System.out.println("Le - " + set);
 		set = number(set);
-		//System.out.println("Nu - " + set);
 		cMan.config_context(cnp, set);
 	}
 	

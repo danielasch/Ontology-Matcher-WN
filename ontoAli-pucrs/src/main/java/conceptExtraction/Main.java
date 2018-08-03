@@ -92,18 +92,16 @@ public class Main {
 
 				listDom = domain(domain);
 				listUp = dolceT(upperD);
-				//disamb(listDom);
 				matchWE(domain, upperD, args[1], listDom, listUp, model);
-				//out(args[1], listDom);
+				outWE(args[1], listDom);
 				evaluate(args);
 				break;
 			case "sumo":
 				Ontology upperS = new Ontology("resources/SUMO.owl");
 				listDom = domain(domain);
 				listUp = sumoT(upperS);
-				//disamb(listDom);
 				matchWE(domain, upperS, args[1], listDom, listUp, model);
-				//out(args[1], listDom);
+				outWE(args[1], listDom);
 				evaluate(args);
 				break;
 			default:
@@ -254,7 +252,7 @@ public class Main {
 				listUp = dolce(upperD);
 				disambWE(listDom, model);
 				matchDolce(domain, upperD, args[1], listDom, listUp);
-				outWE(args[1], listDom);
+				outWNWE(args[1], listDom);
 				evaluate(args);
 				break;
 			case "sumo":
@@ -263,7 +261,7 @@ public class Main {
 				listUp = sumo(upperS);
 				disambWE(listDom, model);
 				matchSumo(domain, upperS, args[1], listDom, listUp);
-				outWE(args[1], listDom);
+				outWNWE(args[1], listDom);
 				evaluate(args);
 				break;
 			default:
@@ -361,9 +359,14 @@ public class Main {
 		out.out_file(listDom);
 	}
 	
+	private static void outWNWE(String outPath, List<Concept> listDom) {
+		OutFiles out = new OutFiles(outPath);
+		out.out_file_we_wn_pair(listDom);
+	}
+	
 	private static void outWE(String outPath, List<Concept> listDom) {
 		OutFiles out = new OutFiles(outPath);
-		out.out_file_we_pair(listDom);
+		out.out_file_we(listDom);
 	}
 	
 	private static void evaluate(String[] args) {

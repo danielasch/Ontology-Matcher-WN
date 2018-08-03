@@ -4,12 +4,14 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map.Entry;
 
 import edu.mit.jwi.item.ISynset;
 import objects.Concept;
+import objects.OutObjectWE;
 
 /*
  * This class generates the text files
@@ -84,7 +86,7 @@ public class OutFiles {
 	/*
 	 * Generates the text file for the Word Embeddings technique
 	 */	
-	public void out_file_we(List<Concept> listDomain) {
+	public void out_file_we_wn(List<Concept> listDomain) {
 		try {
 			FileWriter arq = new FileWriter(this.outPath);
 			PrintWriter printer = new PrintWriter(arq);
@@ -119,7 +121,7 @@ public class OutFiles {
 		}
 	}
 	
-	public void out_file_we_pair(List<Concept> listDomain) {
+	public void out_file_we_wn_pair(List<Concept> listDomain) {
 		try {
 			FileWriter arq = new FileWriter(this.outPath);
 			PrintWriter printer = new PrintWriter(arq);
@@ -160,6 +162,49 @@ public class OutFiles {
 		} catch(IOException e) {
 			System.out.println("Operação I/O interrompida, no arquivo de saída syCNTXTPair!");
 	    	System.out.println("erro: " + e);
+		}
+	}
+	
+	public void out_file_we(List<Concept> listDomain) {
+		try {
+			FileWriter arq = new FileWriter(this.outPath);
+			PrintWriter printer = new PrintWriter(arq);
+
+			for (Concept cnp : listDomain) {
+				printer.print("NOME: " + cnp.get_className() + "\n");
+				printer.print("Desc: " + cnp.get_desc() + "\n");
+				printer.print("Supers: " + cnp.get_supers() + "\n");
+				printer.print("Subs: " + cnp.get_subs() + "\n");
+				printer.print("Contexto: " + cnp.get_context() + "\n");
+				printer.print("Conceito Topo alinhado: " + cnp.get_aliClass() + "\n");
+				
+				List<OutObjectWE> ooList = (List<OutObjectWE>) cnp.get_obj();
+				for (OutObjectWE oo : ooList) {
+					int aux = 0;
+					Double[] vec = oo.get_vec();
+					String name = oo.get_topConcept().get_className();
+					printer.print("\nConceito Topo: " + name + "\n");
+					printer.print(String.format("%20s%16s\r\n", "ELEMENTO CONTEXTO|", "BAG OF WORDS"));
+					for (Entry<String, Object> entry : oo.get_map().entrySet()) {
+						HashMap<String, Double> value = (HashMap<String, Double>) entry.getValue();
+						
+						printer.print(String.format("%20s", entry.getKey() + "=" + vec[aux] + "|"));
+						for (Entry<String, Double> entry2 : value.entrySet()) {
+							printer.print("    " + entry2.getKey() + ":" + entry2.getValue().floatValue() + ";");
+						}
+						printer.print("\n");
+						aux++;
+					}
+					printer.print("\n");
+					printer.print("MEDIA FINAL: " + oo.get_mediaTotal());
+					printer.print("\n\n");
+				}
+				printer.print("----------\n");
+			}
+			arq.close();
+		} catch (IOException e) {
+			System.out.println("Operação I/O interrompida, no arquivo de saída syCNTXTPair!");
+			System.out.println("erro: " + e);
 		}
 	}
 

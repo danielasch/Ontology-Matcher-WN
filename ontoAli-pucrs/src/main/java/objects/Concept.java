@@ -38,6 +38,8 @@ public class Concept {
 	// Auxiliary class to save the information about this concept 
 	//to generate the text out file.
 	private Utilities ut;
+	
+	private Object obj;
 	//Super concepts list
 	private List<OWLClassExpression> supers;
 	//Sub concepts list
@@ -156,6 +158,14 @@ public class Concept {
 	
 	public OWLClass get_aliClass() {
 		return aliClass;
+	}
+	
+	void set_obj(Object _obj) {
+		obj = _obj; 
+	}
+	
+	public Object get_obj() {
+		return obj;
 	}
 
 //Print the concept information method

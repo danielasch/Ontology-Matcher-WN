@@ -6,16 +6,15 @@ import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
-
-import org.semanticweb.owlapi.model.OWLClass;
-import org.semanticweb.owlapi.model.OWLClassExpression;
-import org.semanticweb.owlapi.model.OWLOntology;
 
 import objects.Concept;
 import objects.ConceptManager;
 import objects.Ontology;
+import objects.OutObjectWE;
 import resources.BaseResource;
 
 	
@@ -125,98 +124,97 @@ public class MatchingWE {
 				
 			}
 		}
-
-	//Methods
-		
-		/*
-		 * extract the supper class of a OWLClass
-		 */
-		private OWLClassExpression extract_superClass(OWLClass cls, OWLOntology onto) {
-			
-			OWLClassExpression last = null;
-			for(OWLClassExpression sup: cls.getSuperClasses(onto)) {
-	        	
-	        	if(!sup.isAnonymous()) {					
-	        		last = extract_superRecurClass(sup, onto);
-	        		if(last == null) {
-	        			last = sup;
-	        		}
-	        	}	
-			}
-			return last;
-		}
-			
-		private OWLClassExpression extract_superRecurClass(OWLClassExpression su, OWLOntology onto) {	
-			OWLClassExpression last = null;
-			if(su != null) {
-
-				for(OWLClassExpression sup: ((OWLClass) su).getSuperClasses(onto)) {
-	        	
-					if(!sup.isAnonymous()) {					
-						last = extract_superRecurClass(sup, onto);
-						if(last == null) {
-							last = sup;
-						}
-					}	
-				}
-			}
-			return last;
-		}
 		
 		public void match(List<Concept> listDom, List<Concept> listUp) {
-			
+			init_log();
 			for(Concept cnpDom: listDom) {
-				//System.out.println("============CNPDOM==============");
-				//System.out.println(cnpDom.get_className());
 				Set<String> contextDom = cnpDom.get_context();
 				double max = 0;
 				Concept align = null;
 				ConceptManager man = new ConceptManager();
-			
+				int sizeDom = contextDom.size();
+				
+				List<OutObjectWE> ooList = new ArrayList<>();
+				int aux = 0;
+
 				for(Concept cnpUp: listUp) {
-					//System.out.println("============CNPUP==============");
-					//System.out.println(cnpUp.get_className());
-					 Set<String> contextUp = cnpUp.get_context();
-					 double mediaT = 0;
-					 int sizeDom = contextDom.size();
-					 
-					 for(String elDom: contextDom) {
-						 double media = 0;
-						 int sizeUp = contextUp.size();
-						 
-						 for(String elUp:contextUp) {
-							 double sim = this.baseresource.get_word2vec().get_word2Vec().similarity(elDom, elUp);
-							 //System.out.println(elDom + " | " + elUp + "=" + sim);
-							 if(!(Double.isNaN(sim))) {
-					    			//increment the media and adds the similarity
-				                    media = media + (sim * 10);
-				                } else {
-				                	//case similarity is null
-				                    media = media + 0;
-				                }
-						 }
+					OutObjectWE oo = new OutObjectWE(sizeDom);
+					Set<String> contextUp = cnpUp.get_context();
+					double mediaT = 0;
+					
+					HashMap<String, Object> map = new HashMap<>();
+					Double[] vec = new Double[sizeDom];
+					int aux_1 = 0;
+					for(String elDom: contextDom) {
+						double media = 0;
+						int sizeUp = contextUp.size();
+						
+						HashMap<String, Double> map_1 = new HashMap<>();
+						
+						for(String elUp: contextUp) {
+							double sim = similarity(elDom, elUp);
+							media = media + sim;
+							
+							map_1.put(elUp, sim);	
+						}
+						
 						media = media / sizeUp;
 						mediaT = mediaT + media;
-					 }
-					 mediaT = mediaT / sizeDom;
-					 if(mediaT > max) {
-						 max = mediaT;
-						 align = cnpUp;
-					 }
+						vec[aux_1] = media;
+						map.put(elDom, map_1);
+						aux_1++;
+					}
+					
+					mediaT = mediaT / sizeDom;
+					
+					if(mediaT > max) {
+						max = mediaT;
+						align = cnpUp;
+					}
+					
+					//System.out.println("============OO==============");
+					//System.out.println(cnpUp);
+					oo.set_topConcept(cnpUp);
+					//System.out.println(map);
+					oo.set_map(map);
+					//System.out.println(vec);
+					oo.set_vec(vec);
+					//System.out.println(mediaT);
+					oo.set_mediaTotal(mediaT);
+					
+					if(aux < 5) {
+						ooList.add(oo);
+						Collections.sort(ooList);
+						aux++;
+					} else {
+						ooList.add(oo);
+						Collections.sort(ooList);
+						ooList.remove(4);
+						aux++;
+					}
 				}
+				
 				Mapping map = new Mapping();
 				man.config_aliClass(cnpDom, align.get_owlClass());
+				man.config_object(cnpDom, ooList);
 				map.set_source(cnpDom.get_classID());
 				map.set_target(align.get_classID());
 				map.set_measure("1.0");
 				map.set_relation("&lt;");
-				this.listMap.add(map);
-				System.out.println("==========ALIGN==========");
-				System.out.println(cnpDom.get_classID());
-				System.out.println(align.get_classID());
-				
+				this.listMap.add(map);			
 			}
-			
+			final_log();	
+		}
+		
+		private double similarity(String elDom, String elUp) {
+			double sim = this.baseresource.get_word2vec().get_word2Vec().similarity(elDom, elUp);
+			if(!(Double.isNaN(sim))) {
+				//increment the media and adds the similarity
+				return (sim * 10);
+            } else {
+            	//case similarity is null
+            	return 0;
+            }
 		}
 
 }

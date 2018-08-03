@@ -67,4 +67,8 @@ public class ConceptManager {
 	public void config_utilities(Concept cnp, Utilities ut) {
 		cnp.set_utilities(ut);
 	}
+
+	public void config_object(Concept cnp, Object obj) {
+		cnp.set_obj(obj);
+	}
 }

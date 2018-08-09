@@ -141,13 +141,13 @@ public class MatchingWE {
 					OutObjectWE oo = new OutObjectWE(sizeDom);
 					Set<String> contextUp = cnpUp.get_context();
 					double mediaT = 0;
+					int sizeUp = contextUp.size();
 					
 					HashMap<String, Object> map = new HashMap<>();
 					Double[] vec = new Double[sizeDom];
 					int aux_1 = 0;
 					for(String elDom: contextDom) {
 						double media = 0;
-						int sizeUp = contextUp.size();
 						
 						HashMap<String, Double> map_1 = new HashMap<>();
 						
@@ -166,6 +166,87 @@ public class MatchingWE {
 					}
 					
 					mediaT = mediaT / sizeDom;
+					
+					if(mediaT > max) {
+						max = mediaT;
+						align = cnpUp;
+					}
+					
+					//System.out.println("============OO==============");
+					//System.out.println(cnpUp);
+					oo.set_topConcept(cnpUp);
+					//System.out.println(map);
+					oo.set_map(map);
+					//System.out.println(vec);
+					oo.set_vec(vec);
+					//System.out.println(mediaT);
+					oo.set_mediaTotal(mediaT);
+					
+					if(aux < 5) {
+						ooList.add(oo);
+						Collections.sort(ooList);
+						aux++;
+					} else {
+						ooList.add(oo);
+						Collections.sort(ooList);
+						ooList.remove(4);
+						aux++;
+					}
+				}
+				
+				Mapping map = new Mapping();
+				man.config_aliClass(cnpDom, align.get_owlClass());
+				man.config_object(cnpDom, ooList);
+				map.set_source(cnpDom.get_classID());
+				map.set_target(align.get_classID());
+				map.set_measure("1.0");
+				map.set_relation("&lt;");
+				this.listMap.add(map);			
+			}
+			final_log();	
+		}
+		
+		public void matchInv(List<Concept> listDom, List<Concept> listUp) {
+			init_log();
+			for(Concept cnpDom: listDom) {
+				Set<String> contextDom = cnpDom.get_context();
+				double max = 0;
+				Concept align = null;
+				ConceptManager man = new ConceptManager();
+				int sizeDom = contextDom.size();
+				
+				List<OutObjectWE> ooList = new ArrayList<>();
+				int aux = 0;
+
+				for(Concept cnpUp: listUp) {
+					OutObjectWE oo = new OutObjectWE(sizeDom);
+					Set<String> contextUp = cnpUp.get_context();
+					double mediaT = 0;
+					int sizeUp = contextUp.size();
+					
+					HashMap<String, Object> map = new HashMap<>();
+					Double[] vec = new Double[sizeUp];
+					int aux_1 = 0;
+					for(String elUp: contextUp) {
+						double media = 0;
+						
+						HashMap<String, Double> map_1 = new HashMap<>();
+						
+						for(String elDom: contextDom) {
+							double sim = similarity(elDom, elUp);
+							media = media + sim;
+							
+							map_1.put(elDom, sim);	
+						}
+						
+						media = media / sizeDom;
+						mediaT = mediaT + media;
+						vec[aux_1] = media;
+						map.put(elUp, map_1);
+						aux_1++;
+					}
+					
+					mediaT = mediaT / sizeUp;
 					
 					if(mediaT > max) {
 						max = mediaT;

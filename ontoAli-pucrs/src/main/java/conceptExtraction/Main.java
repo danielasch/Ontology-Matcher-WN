@@ -338,7 +338,7 @@ public class Main {
 		proc.procWE(listUp);
 
 		MatchingWE match = new MatchingWE(outPath, base);
-		match.match(listDom, listUp);
+		match.matchInv(listDom, listUp);
 		match.out_rdf(domain, upper);
 	}
 	
@@ -440,9 +440,12 @@ public class Main {
 		outFile = outFile.concat(aux + "-" + args[2]);
 		outFileLog = outFileLog.concat("out-" + aux + "-" + args[2]);
 		
-		if(args[3].equals("2")) {
+		if(args[3].contains("2")) {
 			outFile = outFile.concat("-WE.rdf");
 			outFileLog = outFileLog.concat("-WE.txt");
+		} else if(args[3].contains("6")) {
+			outFile = outFile.concat("-noWN-WE.rdf");
+			outFileLog = outFileLog.concat("-noWN-WE.txt");
 		} else {
 			outFile = outFile.concat(".rdf");
 			outFileLog = outFileLog.concat(".txt");
@@ -478,7 +481,5 @@ public class Main {
 			return "";
 		}
 	}
-	
-	
 				
 }

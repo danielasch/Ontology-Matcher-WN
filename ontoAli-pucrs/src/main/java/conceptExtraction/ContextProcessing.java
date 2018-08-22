@@ -77,7 +77,11 @@ public class ContextProcessing {
 			tokenize(el, "\n", list);
 		}
 		aux.clear();
-		return list;
+		for(String el: list) {
+			tokenize(el, "_", aux);
+		}
+		list.clear();
+		return aux;
 	}
 	
 	private void tokenize(String el, String sp, List<String> list) {

@@ -247,20 +247,15 @@ public class MatchingWE {
 					}
 					
 					mediaT = mediaT / sizeUp;
-					
+
 					if(mediaT > max) {
 						max = mediaT;
 						align = cnpUp;
 					}
 					
-					//System.out.println("============OO==============");
-					//System.out.println(cnpUp);
 					oo.set_topConcept(cnpUp);
-					//System.out.println(map);
 					oo.set_map(map);
-					//System.out.println(vec);
 					oo.set_vec(vec);
-					//System.out.println(mediaT);
 					oo.set_mediaTotal(mediaT);
 					
 					if(aux < 5) {

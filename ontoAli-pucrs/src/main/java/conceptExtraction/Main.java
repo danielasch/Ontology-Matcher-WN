@@ -20,6 +20,7 @@ import org.apache.commons.io.output.TeeOutputStream;
 
 import matchingProcess.Matching;
 import matchingProcess.MatchingWE;
+import matchingProcess.MatchingWN;
 import objects.Concept;
 import objects.Ontology;
 import resources.BaseResource;
@@ -63,6 +64,9 @@ public class Main {
 			case 6:
 				noWN(args, model);
 				break;
+			case 7:
+				contextWN(args);
+				break;
 			default:
 				System.out.println("Invalid arguments order, please try:\n" + 
 						"1º) domain ontology path\n" +
@@ -78,6 +82,38 @@ public class Main {
 				break;
 		}
 		fTime(start);
+	}
+	
+	private static void contextWN(String[] args) {
+		String topOnto = args[2].toLowerCase();
+		List<Concept> listDom = null;
+		List<Concept> listUp = null;
+		
+		Ontology domain = new Ontology(args[0]);
+		switch(topOnto) {
+			case "dolce":
+				Ontology upperD = new Ontology("resources/DOLCE-Lite.owl");
+
+				listDom = domain(domain);
+				listUp = dolce(upperD);
+				disamb(listDom);
+				matchWN(domain, upperD, args[1], listDom, listUp);
+				//out(args[1], listDom);
+				evaluate(args);
+				break;
+			case "sumo":
+				Ontology upperS = new Ontology("resources/SUMO.owl");
+				listDom = domain(domain);
+				listUp = sumo(upperS);
+				disamb(listDom);
+				matchWN(domain, upperS, args[1], listDom, listUp);
+				//out(args[1], listDom);
+				evaluate(args);
+				break;
+			default:
+				System.out.println("Invalid Upper Ontology selection! Choose SUMO, or DOLCE!");
+				break;
+		}
 	}
 	
 	private static void noWN(String[] args, String model) {
@@ -340,6 +376,13 @@ public class Main {
 		MatchingWE match = new MatchingWE(outPath, base);
 		match.matchInv(listDom, listUp);
 		match.out_rdf(domain, upper);
+	}
+	
+	private static void matchWN(Ontology domain, Ontology upper, String outPath, List<Concept> listDom, List<Concept> listUp) {
+		BaseResource base = new BaseResource(1, null);
+		MatchingWN mat = new MatchingWN(base, outPath);
+		mat.match(listDom,listUp);
+		mat.out(domain, upper);
 	}
 	
 	private static void matchDolce(Ontology domain, Ontology upper, String outPath, List<Concept> listDom, List<Concept> listUp) {

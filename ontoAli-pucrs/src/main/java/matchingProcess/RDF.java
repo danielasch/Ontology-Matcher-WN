@@ -14,7 +14,7 @@ public class RDF {
 	//Attributes
 	
 		//Map list
-		private List<Mapping> listMap;
+		protected List<Mapping> listMap;
 		//path to write the rdf file
 		private String localfile;
 	

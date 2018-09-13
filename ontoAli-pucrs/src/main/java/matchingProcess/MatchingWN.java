@@ -1,7 +1,12 @@
 package matchingProcess;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import edu.mit.jwi.IDictionary;
 import edu.mit.jwi.item.ISynset;
@@ -17,6 +22,16 @@ public class MatchingWN extends RDF{
 	
 	private BaseResource base;
 	
+	private void init_log() {
+		SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
+		System.out.println(sdf.format(Calendar.getInstance().getTime()) + " - [log] - Matching ontologies..." );
+	}
+	
+	private void final_log() {
+		SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
+		System.out.println(sdf.format(Calendar.getInstance().getTime()) + " - [log] - Ontologies matched!" );
+	}
+	
 	public MatchingWN(BaseResource _base, String _localfile) {
 		List<Mapping>lstmap = new LinkedList<>();
 		set_listMap(lstmap);
@@ -25,10 +40,12 @@ public class MatchingWN extends RDF{
 	}
 	
 	public void match(List<Concept> listDom, List<Concept> listUp) {
+		init_log();
 		for(Concept cnp: listDom) {
-			System.out.println(cnp.get_className());
+			//System.out.println(cnp.get_className());
 			matchHyp(cnp, listUp);
 		}
+		final_log();
 	}
 	
 	public void out(Ontology onto1, Ontology onto2) {
@@ -43,36 +60,24 @@ public class MatchingWN extends RDF{
 			System.out.println("ERROR - Could not open the WordNet Dictionary");
 			e.printStackTrace();
 		}
+		Map<Concept, Integer> map = new HashMap<>();
 		ISynset synset = cnp.get_goodSynset();
+		int cont = 0;
 		Concept align = null;
-		boolean aux = true;
-		while(aux) {
-			List<ISynsetID> hyp = getHyper(synset);
-			for(ISynsetID synsetID: hyp) {
-				synset = dict.getSynset(synsetID);
-				align = search(synset, listUp);
-			}
-			if(align != null || hyp.isEmpty()) {
-				aux = false;
-			}
-		}
-		if(align != null) {
-			System.out.println(cnp.get_className() + "||" + align.get_className().toString());
-			System.out.println(synset);
-			Mapping map = new Mapping();
-			ConceptManager man = new ConceptManager();
-			man.config_aliClass(cnp, align.get_owlClass());
-			map.set_source(cnp.get_owlClass().getIRI().toString());
-			map.set_target(align.get_owlClass().getIRI().toString());
-			map.set_measure("1.0");
-			map.set_relation("&lt;");
-			addMap(map);
-			
-		} else {
-			System.out.println(cnp.get_className() + "||" + "null");
-			System.out.println(synset);
-		}
+		ConceptManager man = new ConceptManager();
+		findHypers(dict, synset, listUp, map, cont);
 		dict.close();
+		align = rightCnp(map);
+		if(align != null) {
+			Mapping mappin = new Mapping();
+			man.config_aliClass(cnp, align.get_owlClass());
+			//man.config_object(cnp, ooList);
+			mappin.set_source(cnp.get_classID());
+			mappin.set_target(align.get_classID());
+			mappin.set_measure("1.0");
+			mappin.set_relation("&lt;");
+			this.listMap.add(mappin);
+		}
 	}
 	
 	private List<ISynsetID> getHyper(ISynset synset) {
@@ -96,6 +101,51 @@ public class MatchingWN extends RDF{
 			}
 		}
 		return null;
+	}
+	
+	private void findHypers(IDictionary dict, ISynset synset, List<Concept> listUp, Map<Concept, Integer> map, int cont) {
+		if(synset != null) {
+			ISynset synsetAux = null;
+			Concept align = null;
+			
+			//System.out.println(synset + "   " + cont);
+			List<ISynsetID> hyp = getHyper(synset);
+			//System.out.println("--" + hyp);
+			if(!hyp.isEmpty()) {
+				cont++;
+				for(ISynsetID synsetID: hyp) {
+					synsetAux = dict.getSynset(synsetID);
+					//System.out.println("----" + synsetAux);
+					align = search(synsetAux, listUp);
+
+					if(align != null) {
+						//System.out.println("ALIGN: " + align.get_className());
+						map.put(align, cont);
+					}
+					findHypers(dict, synsetAux, listUp, map, cont);
+					//System.out.println(cont);
+				}
+			}
+		}
+	}
+	
+	private Concept rightCnp(Map<Concept, Integer> map) {
+		if(map.size() == 1) {
+			return map.entrySet().iterator().next().getKey();
+		} else {
+			int max = -1;
+			Concept right = null;
+			for (Entry<Concept, Integer> entry : map.entrySet()) {
+				if(max == -1) {
+					max = entry.getValue();
+					right = entry.getKey();
+				} else if(max > entry.getValue()) {
+					max = entry.getValue();
+					right = entry.getKey();
+				}
+			}
+			return right;
+		}
 	}
 	
 }

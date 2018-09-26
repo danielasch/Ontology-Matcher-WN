@@ -12,6 +12,7 @@ import java.util.Map.Entry;
 import edu.mit.jwi.item.ISynset;
 import objects.Concept;
 import objects.OutObjectWE;
+import objects.outObjectWNH;
 
 /*
  * This class generates the text files
@@ -205,6 +206,62 @@ public class OutFiles {
 		} catch (IOException e) {
 			System.out.println("Operação I/O interrompida, no arquivo de saída syCNTXTPair!");
 			System.out.println("erro: " + e);
+		}
+	}
+	
+	//gera txt para analisar saidas para a tecnica de overlapping e hierarquia do WN
+	public void out_file_wn_h(List<Concept> listDomain) {
+		try {
+			FileWriter arq = new FileWriter(this.outPath);
+			PrintWriter printer = new PrintWriter(arq);
+
+			for (Concept cnp : listDomain) {
+				printer.print("NOME: " + cnp.get_className() + "\n");
+				printer.print("Desc: " + cnp.get_desc() + "\n");
+				printer.print("Supers: " + cnp.get_supers() + "\n");
+				printer.print("Subs: " + cnp.get_subs() + "\n");
+				printer.print("Contexto: " + cnp.get_context() + "\n");
+				printer.print("Conceito Topo alinhado: " + cnp.get_aliClass() + "\n");
+				printer.print("Synset selecionado: " + cnp.get_goodSynset() + "\n\n");
+				List<String> list = new ArrayList<>();
+				outObjectWNH nc = (outObjectWNH) cnp.get_obj();
+				print(nc, list);
+				printer.print("Hierarquia do synset:\n\n");
+				for(String syn: list) {
+					printer.print(syn);
+				}
+				printer.print("\n----------------------------------------------------------------------\n");
+			}
+			arq.close();
+		} catch (IOException e) {
+			System.out.println("Operação I/O interrompida, no arquivo de saída syCNTXTWNh!");
+			System.out.println("erro: " + e);
+		}
+	}
+	//auxilia metodo acima
+	private void print(outObjectWNH nc, List<String> list) {
+		if(nc != null) {
+			String st = "";
+			boolean aux = true;
+			String tab = "" + nc.get_level() + ": ";
+			int cont = nc.get_level() + 1;
+			while(aux) {
+				
+				if(cont != 0) {
+					tab = tab + "\t";
+					cont--;
+				} else {
+					aux = false;
+				}
+			}
+			
+			st = st.concat(tab);
+			st = st.concat(nc.get_print());
+			st = st.concat("\n");
+			list.add(st);
+			for(outObjectWNH nnc: nc.get_list()) {
+				print(nnc, list);
+			}
 		}
 	}
 

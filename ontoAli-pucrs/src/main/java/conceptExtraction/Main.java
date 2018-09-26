@@ -98,7 +98,7 @@ public class Main {
 				listUp = dolce(upperD);
 				disamb(listDom);
 				matchWN(domain, upperD, args[1], listDom, listUp);
-				//out(args[1], listDom);
+				outWNH(args[1], listDom);
 				evaluate(args);
 				break;
 			case "sumo":
@@ -107,7 +107,7 @@ public class Main {
 				listUp = sumo(upperS);
 				disamb(listDom);
 				matchWN(domain, upperS, args[1], listDom, listUp);
-				//out(args[1], listDom);
+				outWNH(args[1], listDom);
 				evaluate(args);
 				break;
 			default:
@@ -410,6 +410,11 @@ public class Main {
 	private static void outWE(String outPath, List<Concept> listDom) {
 		OutFiles out = new OutFiles(outPath);
 		out.out_file_we(listDom);
+	}
+	
+	private static void outWNH(String outPath, List<Concept> listDom) {
+		OutFiles out = new OutFiles(outPath);
+		out.out_file_wn_h(listDom);
 	}
 	
 	private static void evaluate(String[] args) {

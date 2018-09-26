@@ -16,6 +16,7 @@ import edu.mit.jwi.item.Pointer;
 import objects.Concept;
 import objects.ConceptManager;
 import objects.Ontology;
+import objects.outObjectWNH;
 import resources.BaseResource;
 
 public class MatchingWN extends RDF{
@@ -65,7 +66,8 @@ public class MatchingWN extends RDF{
 		int cont = 0;
 		Concept align = null;
 		ConceptManager man = new ConceptManager();
-		findHypers(dict, synset, listUp, map, cont);
+		outObjectWNH nc = new outObjectWNH(synset, cont);
+		findHypers(dict, synset, listUp, map, cont, nc);
 		dict.close();
 		align = rightCnp(map);
 		if(align != null) {
@@ -78,6 +80,9 @@ public class MatchingWN extends RDF{
 			mappin.set_relation("&lt;");
 			this.listMap.add(mappin);
 		}
+		man.config_object(cnp, nc);
+		//System.out.println("cnp: " + cnp.get_className() + "\n");
+		//something(nc);
 	}
 	
 	private List<ISynsetID> getHyper(ISynset synset) {
@@ -103,7 +108,7 @@ public class MatchingWN extends RDF{
 		return null;
 	}
 	
-	private void findHypers(IDictionary dict, ISynset synset, List<Concept> listUp, Map<Concept, Integer> map, int cont) {
+	private void findHypers(IDictionary dict, ISynset synset, List<Concept> listUp, Map<Concept, Integer> map, int cont, outObjectWNH nc) {
 		if(synset != null) {
 			ISynset synsetAux = null;
 			Concept align = null;
@@ -116,13 +121,15 @@ public class MatchingWN extends RDF{
 				for(ISynsetID synsetID: hyp) {
 					synsetAux = dict.getSynset(synsetID);
 					//System.out.println("----" + synsetAux);
+					outObjectWNH nnc = new outObjectWNH(synsetAux, cont);
+					nc.add_list(nnc);
 					align = search(synsetAux, listUp);
 
 					if(align != null) {
 						//System.out.println("ALIGN: " + align.get_className());
 						map.put(align, cont);
 					}
-					findHypers(dict, synsetAux, listUp, map, cont);
+					findHypers(dict, synsetAux, listUp, map, cont, nnc);
 					//System.out.println(cont);
 				}
 			}
@@ -148,4 +155,12 @@ public class MatchingWN extends RDF{
 		}
 	}
 	
+	private void something(outObjectWNH nc) {
+		if(nc != null) {
+			nc.print();
+			for(outObjectWNH nnc: nc.get_list()) {
+				something(nnc);
+			}
+		}
+	}
 }

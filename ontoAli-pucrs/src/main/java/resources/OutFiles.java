@@ -223,15 +223,23 @@ public class OutFiles {
 				printer.print("Contexto: " + cnp.get_context() + "\n");
 				printer.print("Conceito Topo alinhado: " + cnp.get_aliClass() + "\n");
 				printer.print("Synset selecionado: " + cnp.get_goodSynset() + "\n\n");
-				List<String> list = new ArrayList<>();
 				outObjectWNH nc = (outObjectWNH) cnp.get_obj();
-				print(nc, list);
-				printer.print("Hierarquia do synset:\n\n");
-				for(String syn: list) {
-					printer.print(syn);
+		
+				if(nc != null) {
+					List<String> list = new ArrayList<>();
+
+					print(nc, list);
+					printer.print("Hierarquia do synset:\n\n");
+					for(String syn: list) {
+						printer.print(syn);
+					}
+					printer.print("\n----------------------------------------------------------------------\n");
+				} else {
+					printer.print("Hierarquia do synset:null\n");
+					printer.print("\n----------------------------------------------------------------------\n");
 				}
-				printer.print("\n----------------------------------------------------------------------\n");
 			}
+			printer.print("Fim arq");
 			arq.close();
 		} catch (IOException e) {
 			System.out.println("Operação I/O interrompida, no arquivo de saída syCNTXTWNh!");

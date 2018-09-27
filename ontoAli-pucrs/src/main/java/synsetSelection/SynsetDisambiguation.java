@@ -99,6 +99,8 @@ public class SynsetDisambiguation {
 		//in this case the concept name was used as argument
 		IIndexWord idxWord = dict.getIndexWord(name, POS.NOUN);
 		
+		//System.out.println(concept.get_className());
+		
 		if(idxWord != null) {
 			int max = 0;
 			//each IWordID has a synset
@@ -111,7 +113,7 @@ public class SynsetDisambiguation {
 				for (IWordID wordId : wordIds) {
 					IWord word = dict.getWord(wordId);
 					ISynset synset = word.getSynset();
-	
+					//System.out.println(synset);
 					//wordsSynset receive the words that composes the synset
 					List<IWord> wordsSynset = synset.getWords();
 					//glossSynset receive the gloss of the synset
@@ -125,6 +127,7 @@ public class SynsetDisambiguation {
 					temp1.put(synset, bagSynset);
 					//size receive the number of overlaps between two lists
 					int size = intersection(context, bagSynset);
+					//System.out.println(size);
 					if(size > max) {
 						max = size;
 						//sets the synset of a concept

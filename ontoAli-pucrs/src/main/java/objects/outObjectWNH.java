@@ -12,8 +12,16 @@ public class outObjectWNH {
 	
 	public outObjectWNH(ISynset synset, int lvl) {
 		this.obj = synset;
+		//this.list = null;
 		this.list = new ArrayList<>();
 		this.level = lvl;
+	}
+	
+	public outObjectWNH() {
+		this.obj = null;
+		//this.list = null;
+		this.list = null;
+		this.level = 0;
 	}
 	
 	public void print() {
@@ -34,5 +42,17 @@ public class outObjectWNH {
 	
 	public List<outObjectWNH> get_list() {
 		return this.list;
+	}
+	
+	public void set_synset(ISynset syn) {
+		this.obj = syn;
+	}
+	
+	public void set_cont(int cont) {
+		this.level = cont;
+	}
+	
+	public void create_list() {
+		this.list = new ArrayList<>();
 	}
 }

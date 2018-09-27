@@ -44,7 +44,9 @@ public class MatchingWN extends RDF{
 		init_log();
 		for(Concept cnp: listDom) {
 			//System.out.println(cnp.get_className());
-			matchHyp(cnp, listUp);
+			if(cnp.get_goodSynset() != null) {
+				matchHyp(cnp, listUp);
+			}	
 		}
 		final_log();
 	}
@@ -66,7 +68,10 @@ public class MatchingWN extends RDF{
 		int cont = 0;
 		Concept align = null;
 		ConceptManager man = new ConceptManager();
-		outObjectWNH nc = new outObjectWNH(synset, cont);
+		outObjectWNH nc = new outObjectWNH();
+		nc.set_synset(synset);
+		nc.set_cont(cont);
+		nc.create_list();
 		findHypers(dict, synset, listUp, map, cont, nc);
 		dict.close();
 		align = rightCnp(map);
@@ -82,6 +87,7 @@ public class MatchingWN extends RDF{
 		}
 		man.config_object(cnp, nc);
 		//System.out.println("cnp: " + cnp.get_className() + "\n");
+		//System.out.println(synset);
 		//something(nc);
 	}
 	
@@ -118,6 +124,7 @@ public class MatchingWN extends RDF{
 			//System.out.println("--" + hyp);
 			if(!hyp.isEmpty()) {
 				cont++;
+				//nc.create_list();
 				for(ISynsetID synsetID: hyp) {
 					synsetAux = dict.getSynset(synsetID);
 					//System.out.println("----" + synsetAux);
@@ -158,8 +165,10 @@ public class MatchingWN extends RDF{
 	private void something(outObjectWNH nc) {
 		if(nc != null) {
 			nc.print();
+			//if(nc.get_list() != null) {
 			for(outObjectWNH nnc: nc.get_list()) {
 				something(nnc);
+			//}
 			}
 		}
 	}

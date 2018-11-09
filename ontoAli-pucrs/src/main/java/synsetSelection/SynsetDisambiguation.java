@@ -88,16 +88,38 @@ public class SynsetDisambiguation {
 		List<String> context = slem.toList(concept.get_context());
 		//name receive the concept name
 		String name = man.conceptName_wn(concept);
+		String name2 = man.conceptName(concept);
+	
 		//lemmatize the concept name
 		List<String> cnpNameLemma = slem.lemmatize(name);
+		List<String> cnpNameLemma2 = slem.lemmatize(name2);
+		
+		name2 = concatList(cnpNameLemma2);
 		int i = cnpNameLemma.size();
 		//name receive the concept name lemmatized
 		name = cnpNameLemma.get(i - 1);
 		//open the Idictionary
 		dict.open();
+		IIndexWord idxWord = null;
+		
+		//condição para verificar o termo composto
+		if(dict.getIndexWord(name2, POS.NOUN) == null) {
+			idxWord = dict.getIndexWord(name, POS.NOUN);
+			System.out.println(name);
+			System.out.println("-----------------------------1\n");
+		//para termo simples comentar bloco else e linha que contém o IF
+		} else {
+			//faz pesquisa de termo composto no WN
+			idxWord = dict.getIndexWord(name2, POS.NOUN);
+			System.out.println(name2);
+			System.out.println("-----------------------------2\n");
+		}
+		//*********
+		
 		//idxWord receive the IIndexWord of a noun word in WordNet
 		//in this case the concept name was used as argument
-		IIndexWord idxWord = dict.getIndexWord(name, POS.NOUN);
+		
+		//IIndexWord idxWord = dict.getIndexWord(name2, POS.NOUN);
 		
 		//System.out.println(concept.get_className());
 		
@@ -153,6 +175,16 @@ public class SynsetDisambiguation {
 		ut.set_synsetCntx(temp1);
 		//sets the utilities of a concept
 		man.config_utilities(concept, ut);
+	}
+	
+	private String concatList(List<String> list) {
+		int i = list.size();
+		String name = "";
+		for(int j=0;j<i-1;j++) {
+			name = name.concat(list.get(j) + " ");
+		}
+		name = name.concat(list.get(i-1));
+		return name;
 	}
 	
 	/*

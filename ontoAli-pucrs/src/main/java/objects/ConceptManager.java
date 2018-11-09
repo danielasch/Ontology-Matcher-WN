@@ -56,6 +56,10 @@ public class ConceptManager {
 		return cnp.sp_conceptName();
 	}
 	
+	public String conceptName(Concept cnp) {
+		return cnp.sp_conceptName2();
+	}
+	
 	public void config_synset(Concept cnp, ISynset synset) {
 		cnp.set_goodSynset(synset);
 	}

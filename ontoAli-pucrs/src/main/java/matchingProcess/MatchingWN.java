@@ -86,6 +86,7 @@ public class MatchingWN extends RDF{
 			this.listMap.add(mappin);
 		}
 		man.config_object(cnp, nc);
+		map.clear();
 		//System.out.println("cnp: " + cnp.get_className() + "\n");
 		//System.out.println(synset);
 		//something(nc);

@@ -234,7 +234,32 @@ public class Concept {
 			name = cnpName;
 		}
 		return name;
-	}	
+	}
+	
+	protected String sp_conceptName2() {
+		String name = "";
+		String cnpName = this.className;
+		if(cnpName.contains("_")) {
+			name = cnpName.replace("_", " ");	
+		} else if(cnpName.contains("-")) {
+			name = cnpName.replace("-", " ");
+		} else if(hasUpperCase(cnpName)) {
+			int x = cnpName.length();
+			int up = 0;
+			for(int y = 1; y < x; y++) {
+				if(Character.isUpperCase(cnpName.charAt(y)) && y > up) {
+					name = name.concat(cnpName.substring(up, y) + " ");
+					up = y;
+				}
+			}
+			if(up != 0) {
+				name = name.concat(cnpName.substring(up));
+			}
+		} else {
+			name = cnpName;
+		}
+		return name.toLowerCase();
+	}
 	
 	/*
 	 * This methods test if a string has UpperCase in its middle.

@@ -2,13 +2,10 @@ package synsetSelection;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Set;
-import java.util.StringTokenizer;
+
 
 import edu.mit.jwi.IDictionary;
 import edu.mit.jwi.item.IIndexWord;
@@ -24,19 +21,20 @@ import resources.Utilities;
 /*
  * This class disambiguate the recovered synsets for a concept
  */
-public class SynsetDisambiguation {
+public class SynsetDisambiguation extends SynsetBasic {
 	
 //Attributes
 	
 	//BaseResource contains the necessary resources to execute the disambiguation
-	private BaseResource base;
+	//private BaseResource base;
 	
 //Constructor
 	
-	public SynsetDisambiguation(BaseResource _base) {
+	public SynsetDisambiguation(BaseResource _base, int _single) {
 		SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
 		System.out.println(sdf.format(Calendar.getInstance().getTime()) + " - [log] - Synset didambiguation selected!" );
 		this.base = _base;
+		this.single = _single;
 	}
 	
 //Log Methods
@@ -86,42 +84,14 @@ public class SynsetDisambiguation {
 		int numSy = 0;
 		
 		List<String> context = slem.toList(concept.get_context());
-		//name receive the concept name
-		String name = man.conceptName_wn(concept);
-		String name2 = man.conceptName(concept);
-	
-		//lemmatize the concept name
-		List<String> cnpNameLemma = slem.lemmatize(name);
-		List<String> cnpNameLemma2 = slem.lemmatize(name2);
 		
-		name2 = concatList(cnpNameLemma2);
-		int i = cnpNameLemma.size();
-		//name receive the concept name lemmatized
-		name = cnpNameLemma.get(i - 1);
+		String name = single_compund(man, concept, slem, this.single);
 		//open the Idictionary
 		dict.open();
-		IIndexWord idxWord = null;
-		
-		//condição para verificar o termo composto
-		if(dict.getIndexWord(name2, POS.NOUN) == null) {
-			idxWord = dict.getIndexWord(name, POS.NOUN);
-			System.out.println(name);
-			System.out.println("-----------------------------1\n");
-		//para termo simples comentar bloco else e linha que contém o IF
-		} else {
-			//faz pesquisa de termo composto no WN
-			idxWord = dict.getIndexWord(name2, POS.NOUN);
-			System.out.println(name2);
-			System.out.println("-----------------------------2\n");
-		}
-		//*********
+		IIndexWord idxWord = dict.getIndexWord(name, POS.NOUN);
 		
 		//idxWord receive the IIndexWord of a noun word in WordNet
 		//in this case the concept name was used as argument
-		
-		//IIndexWord idxWord = dict.getIndexWord(name2, POS.NOUN);
-		
-		//System.out.println(concept.get_className());
 		
 		if(idxWord != null) {
 			int max = 0;
@@ -177,55 +147,6 @@ public class SynsetDisambiguation {
 		man.config_utilities(concept, ut);
 	}
 	
-	private String concatList(List<String> list) {
-		int i = list.size();
-		String name = "";
-		for(int j=0;j<i-1;j++) {
-			name = name.concat(list.get(j) + " ");
-		}
-		name = name.concat(list.get(i-1));
-		return name;
-	}
-	
-	/*
-	 * create the bag of words of a synset
-	 */
-	private List<String> createBagWords(List<IWord> wordsSynset, String glossSynset) {
-	    List<String> list = new ArrayList<String>();
-	    Set<String> set = new HashSet<String>();
-	    StanfordLemmatizer slem = this.base.get_lemmatizer();
-	    for (IWord i : wordsSynset) {
-	    	StringTokenizer st = new StringTokenizer(i.getLemma().toLowerCase().replace("_"," ")," ");
-	    	while (st.hasMoreTokens()) {
-	    		  String token = st.nextToken();
-	    	 	  if (!list.contains(token)) {
-	    	  	      list.add(token);
-	    	      }
-	    	}
-	    }
-	    glossSynset = glossSynset.replaceAll(";"," ").replaceAll("\"", " ").replaceAll("-"," ").toLowerCase();
-	    StringTokenizer st = new StringTokenizer(glossSynset," ");
-    	while (st.hasMoreTokens()) {
-    		   String token = st.nextToken().toLowerCase();
-    		   token = rm_specialChar(token);
-    		   if (!this.base.get_StpWords().contains(token) && !list.contains(token)) {			
-    			   list.add(token);
-    		   }
-    	}
-    	//turn the list into a string to lemmatize the list
-    	String toLemma = slem.toLemmatize(list);
-    	//clears the list
-		list.clear();
-		//list receive the string lemmatized
-		list = slem.lemmatize(toLemma); 
-		//turns the list into a set, 
-		//to avoid repeated lemmatized strings
-		set =  slem.toSet(list);
-		//turns back the set into a list
-		list = slem.toList(set);
-	   return list;
-	}
-	
 	/*
 	 * Overlapping between two lists
 	 */
@@ -241,37 +162,6 @@ public class SynsetDisambiguation {
 			}
 		}
 		return inter;
-	}
-		
-	/*
-	 * Remove some char of a string 
-	 */
-	private String rm_specialChar(String word) {
-		if(word.contains("(")) {
-        	word = word.replace("(", "");
-        }        
-        if(word.contains(")")) {
-        	word = word.replace(")", "");
-        }        
-        if(word.contains(",")) {
-        	word = word.replace(",", "");
-        }       
-        if(word.contains(":")) {
-        	word = word.replace(":", "");
-        }               
-        if(word.contains("'")) {
-        	word = word.replace("'", "");
-        }        
-        if(word.contains(".")) {
-        	word = word.replace(".", "");
-        } 
-        if(word.contains("?")) {
-        	word = word.replace("?","");
-        }
-        if(word.contains("!")) {
-        	word = word.replace("!","");
-        }       
-        return word;	
 	}
 	
 

@@ -69,8 +69,13 @@
 		ex: C:/Users/.../alignment.rdf					          
 	-[top ontology] (dolce, sumo or dul)				        
 		ex: dolce										                      
-	-[alignment technique] (0, 1, 2 or 3)				        
-		ex: 2											                        
+	-[alignment technic:compound term:word embedding model] 
+		aligment technic - (1, 2, 3, 4 or 5)
+		compound term - (0 = on and 1 = off)
+		word embedding model - (google = Google News Model and glove = GloVe Model)
+		
+		ex: 2:0:google
+		
 	-[reference alignment path] OPTIONAL				       
 		ex: C:/Users/.../referenceAlign.rdf				       
 														                        
@@ -100,9 +105,23 @@
 														                          
 	1 -> Based on lesk word sense disambiguation:		   
 		Overlaps the context with the bag of words of	    
-		a synset. 										                    
+		a synset. 	
+		
 	2 -> Word Embedding disambiguation:					       
 		Uses the average cossine distance between the	    
-		context and the bag of words of a synset.		      
-	3 -> Developing										                  
+		context and the bag of words of a synset.
+		
+	3 -> Direct Word Embedding alignment:
+		Uses the average cossine distance between the	    
+		context and the bag of words of a Top 
+		ontology concept.
+		
+	4 -> Hierarchical Word Net Structure:
+		Uses the Hypernym realtion to find the 
+		alignment.
+		
+	5 -> Levenshtein Distance:
+		Uses the levenshtein distance to calculate the 
+		similarity between the context and the bag of 
+		words of a synset
 

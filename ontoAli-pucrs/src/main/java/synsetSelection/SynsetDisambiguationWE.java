@@ -4,12 +4,8 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
-import java.util.StringTokenizer;
 
 import edu.mit.jwi.IDictionary;
 import edu.mit.jwi.item.IIndexWord;
@@ -26,7 +22,7 @@ import resources.Utilities;
  * This class disambiguate the synset using the Word Embedding model from GloVe.
  * Model specifications - 6B tokens, 400K vocab, uncased, & 200d vectors.
  */
-public class SynsetDisambiguationWE {
+public class SynsetDisambiguationWE extends SynsetBasic{
 
 //Attributes
 	
@@ -35,10 +31,11 @@ public class SynsetDisambiguationWE {
 
 //Constructor	
 	
-	public SynsetDisambiguationWE(BaseResource _base) {
+	public SynsetDisambiguationWE(BaseResource _base, int _single) {
 		SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
 		System.out.println(sdf.format(Calendar.getInstance().getTime()) + " - [log] - Synset didambiguation with Word embedding selected!" );
 		this.base = _base;
+		this.single = _single;
 	}
 
 //Log methods
@@ -91,13 +88,11 @@ public class SynsetDisambiguationWE {
 		LinkedHashMap<ISynset, LinkedHashMap<String, LinkedHashMap<String, Double> > > temp3 = new LinkedHashMap<ISynset, LinkedHashMap<String, LinkedHashMap<String, Double> > >();
 				
 		List<String> context = slem.toList(concept.get_context());
-		//name receive the concept name
-		String name = man.conceptName_wn(concept);
-		//lemmatize the concept name
-		List<String> cnpNameLemma = slem.lemmatize(name);
-		int i = cnpNameLemma.size();
-		//name receive the concept name lemmatized
-		name = cnpNameLemma.get(i - 1);
+		
+		//function that chooses if the name from concept is a single term or compound term
+		//if single returns the last term from name, if not returns all terms separated by BLANK_SPACES
+		String name = single_compund(man, concept, slem, this.single);
+		
 		//open the dictionary 
 		dict.open();
 		//idxWord receive the IIndexWord of a noun word in WordNet
@@ -178,73 +173,5 @@ public class SynsetDisambiguationWE {
 		//sets the utilities of a concept
 		man.config_utilities(concept, ut);
 	}
-	
-	/*
-	 * create the bag of words of a synset
-	 */
-	private List<String> createBagWords(List<IWord> wordsSynset, String glossSynset) {
-	    List<String> list = new LinkedList<String>();
-	    Set<String> set = new HashSet<String>();
-	    StanfordLemmatizer slem = this.base.get_lemmatizer();
-	    for (IWord i : wordsSynset) {
-	    	StringTokenizer st = new StringTokenizer(i.getLemma().toLowerCase().replace("_"," ")," ");
-	    	while (st.hasMoreTokens()) {
-	    		  String token = st.nextToken();
-	    	 	  if (!list.contains(token)) {
-	    	  	      list.add(token);
-	    	      }
-	    	}
-	    }
-	    glossSynset = glossSynset.replaceAll(";"," ").replaceAll("\"", " ").replaceAll("-"," ").toLowerCase();
-	    StringTokenizer st = new StringTokenizer(glossSynset," ");
-    	while (st.hasMoreTokens()) {
-    		   String token = st.nextToken().toLowerCase();
-    		   token = rm_specialChar(token);
-    		   if (!this.base.get_StpWords().contains(token) && !list.contains(token)) {			
-    			   list.add(token);
-    		   }
-    	}
-    	//turn the list into a string to lemmatize the list
-    	String toLemma = slem.toLemmatize(list);
-    	//clears the list
-		list.clear();
-		//list receive the string lemmatized
-		list = slem.lemmatize(toLemma); 
-		//turns the list into a set, 
-		//to avoid repeated lemmatized strings
-		set =  slem.toSet(list);
-		//turns back the set into a list
-		list = slem.toList(set);	
-	   return list;
-	}
-	
-	private String rm_specialChar(String word) {
-		if(word.contains("(")) {
-        	word = word.replace("(", "");
-        }        
-        if(word.contains(")")) {
-        	word = word.replace(")", "");
-        }        
-        if(word.contains(",")) {
-        	word = word.replace(",", "");
-        }       
-        if(word.contains(":")) {
-        	word = word.replace(":", "");
-        }               
-        if(word.contains("'")) {
-        	word = word.replace("'", "");
-        }        
-        if(word.contains(".")) {
-        	word = word.replace(".", "");
-        } 
-        if(word.contains("?")) {
-        	word = word.replace("?","");
-        }
-        if(word.contains("!")) {
-        	word = word.replace("!","");
-        }       
-        return word;	
-	}
-
 
 }

@@ -166,6 +166,7 @@ public class OutFiles {
 		}
 	}
 	
+	@SuppressWarnings("unchecked")
 	public void out_file_we(List<Concept> listDomain) {
 		try {
 			FileWriter arq = new FileWriter(this.outPath);

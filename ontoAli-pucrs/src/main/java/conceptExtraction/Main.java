@@ -27,6 +27,7 @@ import resources.BaseResource;
 import resources.Evaluator;
 import resources.OutFiles;
 import synsetSelection.SynsetDisambiguation;
+import synsetSelection.SynsetDisambiguationLD;
 import synsetSelection.SynsetDisambiguationWE;
 
 /*
@@ -38,53 +39,90 @@ public class Main {
 	//arg 0 = domain onto
 	//arg 1 = rdf out
 	//arg 2 = dolce/sumo
-	//arg 3 = tec - se 2:modelo [modelo = google ou glove]
-	//arg 4 = ref align
+	//arg 3 = tec - se 1:ativa termo composto [0 - termo simples ou 1 - termo composto] - se 2:modelo [modelo = google, glove, 0 - xero para nenhum] -
+	//arg 4 = ref align 
 	public static void main(String[] args) {
 		long start = sTime();
 		verify(args);
-		String model = sp_model(args);
-		int tec = Integer.parseInt(args[3]);
+		String[] op = sp_options(args);
+		int tec = Integer.parseInt(op[0]);
+		int compound = Integer.parseInt(op[1]);
+		String model = op[2];
+		
+		
 		switch(tec) {
 			case 1:
-				context(args);
+				lesk(args, compound);
 				break;
 			case 2:
-				wordEmbedding(args, model);
+				wordEmbedding(args, compound, model);
 				break;
 			case 3:
-				resnik(args);
+				directWE(args, model);//modelo word embedings
 				break;
 			case 4:
-				lin(args);
+				directWN(args, compound);
 				break;
 			case 5:
-				wup(args);
-				break;
-			case 6:
-				noWN(args, model);
-				break;
-			case 7:
-				contextWN(args);
+				levenshteinDistance(args, compound);
 				break;
 			default:
 				System.out.println("Invalid arguments order, please try:\n" + 
 						"1º) domain ontology path\n" +
 						"2º) out file path\n" + 
 						"3º) top ontology selection [sumo or dolce]\n" +
-						"4º) technic selection [1, 2, 3, 4 or 5 - the numbers correspond to a certain technic]\n" + 
+						"4º) technic selection [technic:compound:model\n" +
+						"TECHNIC --> 1, 2, 3, 4 or 5 - select a certain technic\n" +
 						"\t 1 - Overlapping\n" +
 						"\t 2 - WordEmbeddings\n" +
 						"\t 3 - Resnik\n" +
 						"\t 4 - Lin\n" +
 						"\t 5 - Wup\n" +
+						"COMPOUND --> 0 or 1 - activate searching for compounds term on WORD NET\n" +
+						"\t 0 - off\n" +
+						"\t 1 - on\n" +
+						"MODEL --> 1 or 2 - select the Word Embedding model\n" + 
+						"\t glove - GloVe\n" +
+						"\t google - GoogleNewsModel\n" +
 						"5º) reference alignment path [optional]");
 				break;
 		}
 		fTime(start);
 	}
 	
-	private static void contextWN(String[] args) {
+	private static void levenshteinDistance(String[] args, int single) {
+		String topOnto = args[2].toLowerCase();
+		List<Concept> listDom = null;
+		List<Concept> listUp = null;
+		
+		Ontology domain = new Ontology(args[0]);
+		switch(topOnto) {
+			case "dolce":
+				Ontology upperD = new Ontology("resources/wnNounsyn_v7.owl");
+
+				listDom = domain(domain);
+				listUp = dolce(upperD);
+				disambLD(listDom, single);
+				matchDolce(domain, upperD, args[1], listDom, listUp);
+				out(args[1], listDom);
+				evaluate(args);
+				break;
+			case "sumo":
+				Ontology upperS = new Ontology("resources/SUMO.owl");
+				listDom = domain(domain);
+				listUp = sumo(upperS);
+				disambLD(listDom, single);
+				matchSumo(domain, upperS, args[1], listDom, listUp);
+				out(args[1], listDom);
+				evaluate(args);
+				break;
+			default:
+				System.out.println("Invalid Upper Ontology selection! Choose SUMO, or DOLCE!");
+				break;
+		}
+	}
+	
+	private static void directWN(String[] args, int single) {
 		String topOnto = args[2].toLowerCase();
 		List<Concept> listDom = null;
 		List<Concept> listUp = null;
@@ -96,7 +134,7 @@ public class Main {
 
 				listDom = domain(domain);
 				listUp = dolce(upperD);
-				disamb(listDom);
+				disamb(listDom, single);
 				matchWN(domain, upperD, args[1], listDom, listUp);
 				outWNH(args[1], listDom);
 				evaluate(args);
@@ -105,7 +143,7 @@ public class Main {
 				Ontology upperS = new Ontology("resources/SUMO.owl");
 				listDom = domain(domain);
 				listUp = sumo(upperS);
-				disamb(listDom);
+				disamb(listDom, single);
 				matchWN(domain, upperS, args[1], listDom, listUp);
 				outWNH(args[1], listDom);
 				evaluate(args);
@@ -116,7 +154,7 @@ public class Main {
 		}
 	}
 	
-	private static void noWN(String[] args, String model) {
+	private static void directWE(String[] args, String model) {
 		String topOnto = args[2].toLowerCase();
 		List<Concept> listDom = null;
 		List<Concept> listUp = null;
@@ -146,7 +184,7 @@ public class Main {
 		}
 	}
 	
-	private static void wup(String[] args) {
+	private static void lesk(String[] args, int single) {
 		String topOnto = args[2].toLowerCase();
 		List<Concept> listDom = null;
 		List<Concept> listUp = null;
@@ -158,103 +196,7 @@ public class Main {
 
 				listDom = domain(domain);
 				listUp = dolce(upperD);
-				//disamb(listDom);
-				matchDolce(domain, upperD, args[1], listDom, listUp);
-				//out(args[1], listDom);
-				evaluate(args);
-				break;
-			case "sumo":
-				Ontology upperS = new Ontology("resources/SUMO.owl");
-				listDom = domain(domain);
-				listUp = sumo(upperS);
-				//disamb(listDom);
-				matchSumo(domain, upperS, args[1], listDom, listUp);
-				//out(args[1], listDom);
-				evaluate(args);
-				break;
-			default:
-				System.out.println("Invalid Upper Ontology selection! Choose SUMO, or DOLCE!");
-				break;
-		}
-	}
-	
-	private static void lin(String[] args) {
-		String topOnto = args[2].toLowerCase();
-		List<Concept> listDom = null;
-		List<Concept> listUp = null;
-		
-		Ontology domain = new Ontology(args[0]);
-		switch(topOnto) {
-			case "dolce":
-				Ontology upperD = new Ontology("resources/wnNounsyn_v7.owl");
-
-				listDom = domain(domain);
-				listUp = dolce(upperD);
-				//disamb(listDom);
-				matchDolce(domain, upperD, args[1], listDom, listUp);
-				//out(args[1], listDom);
-				evaluate(args);
-				break;
-			case "sumo":
-				Ontology upperS = new Ontology("resources/SUMO.owl");
-				listDom = domain(domain);
-				listUp = sumo(upperS);
-				//disamb(listDom);
-				matchSumo(domain, upperS, args[1], listDom, listUp);
-				//out(args[1], listDom);
-				evaluate(args);
-				break;
-			default:
-				System.out.println("Invalid Upper Ontology selection! Choose SUMO, or DOLCE!");
-				break;
-		}
-	}
-	
-	private static void resnik(String[] args) {
-		String topOnto = args[2].toLowerCase();
-		List<Concept> listDom = null;
-		List<Concept> listUp = null;
-		
-		Ontology domain = new Ontology(args[0]);
-		switch(topOnto) {
-			case "dolce":
-				Ontology upperD = new Ontology("resources/wnNounsyn_v7.owl");
-
-				listDom = domain(domain);
-				listUp = dolce(upperD);
-				//disamb(listDom);
-				matchDolce(domain, upperD, args[1], listDom, listUp);
-				//out(args[1], listDom);
-				evaluate(args);
-				break;
-			case "sumo":
-				Ontology upperS = new Ontology("resources/SUMO.owl");
-				listDom = domain(domain);
-				listUp = sumo(upperS);
-				//disamb(listDom);
-				matchSumo(domain, upperS, args[1], listDom, listUp);
-				//out(args[1], listDom);
-				evaluate(args);
-				break;
-			default:
-				System.out.println("Invalid Upper Ontology selection! Choose SUMO, or DOLCE!");
-				break;
-		}
-	}
-	
-	private static void context(String[] args) {
-		String topOnto = args[2].toLowerCase();
-		List<Concept> listDom = null;
-		List<Concept> listUp = null;
-		
-		Ontology domain = new Ontology(args[0]);
-		switch(topOnto) {
-			case "dolce":
-				Ontology upperD = new Ontology("resources/wnNounsyn_v7.owl");
-
-				listDom = domain(domain);
-				listUp = dolce(upperD);
-				disamb(listDom);
+				disamb(listDom, single);
 				matchDolce(domain, upperD, args[1], listDom, listUp);
 				out(args[1], listDom);
 				evaluate(args);
@@ -263,7 +205,7 @@ public class Main {
 				Ontology upperS = new Ontology("resources/SUMO.owl");
 				listDom = domain(domain);
 				listUp = sumo(upperS);
-				disamb(listDom);
+				disamb(listDom, single);
 				matchSumo(domain, upperS, args[1], listDom, listUp);
 				out(args[1], listDom);
 				evaluate(args);
@@ -274,7 +216,7 @@ public class Main {
 		}
 	}
 	
-	private static void wordEmbedding(String[] args, String model) {
+	private static void wordEmbedding(String[] args, int compound, String model) {
 		String topOnto = args[2].toLowerCase();
 		List<Concept> listDom = null;
 		List<Concept> listUp = null;
@@ -286,7 +228,7 @@ public class Main {
 
 				listDom = domain(domain);
 				listUp = dolce(upperD);
-				disambWE(listDom, model);
+				disambWE(listDom, model, compound);
 				matchDolce(domain, upperD, args[1], listDom, listUp);
 				outWNWE(args[1], listDom);
 				evaluate(args);
@@ -295,7 +237,7 @@ public class Main {
 				Ontology upperS = new Ontology("resources/SUMO.owl");
 				listDom = domain(domain);
 				listUp = sumo(upperS);
-				disambWE(listDom, model);
+				disambWE(listDom, model, compound);
 				matchSumo(domain, upperS, args[1], listDom, listUp);
 				outWNWE(args[1], listDom);
 				evaluate(args);
@@ -347,22 +289,31 @@ public class Main {
 		return listDom;
 	}
 	
-	private static void disamb(List<Concept> listDom) {
+	private static void disamb(List<Concept> listDom, int single) {
 		BaseResource base = new BaseResource(1, null);
 		ContextProcessing proc = new ContextProcessing(base);
 		proc.process(listDom);
 		
-		SynsetDisambiguation disam = new SynsetDisambiguation(base);
+		SynsetDisambiguation disam = new SynsetDisambiguation(base, single);
+		disam.disambiguation(listDom);
+	}
+	
+	private static void disambLD(List<Concept> listDom, int single) {
+		BaseResource base = new BaseResource(1, null);
+		ContextProcessing proc = new ContextProcessing(base);
+		proc.process(listDom);
+		
+		SynsetDisambiguationLD disam = new SynsetDisambiguationLD(base, single);
 		disam.disambiguation(listDom);
 	}
 	
 	
-	private static void disambWE(List<Concept> listDom, String model) {
+	private static void disambWE(List<Concept> listDom, String model, int compound) {
 		BaseResource base = new BaseResource(2, model);
 		ContextProcessing proc = new ContextProcessing(base);
 		proc.process(listDom);
 		
-		SynsetDisambiguationWE disam = new SynsetDisambiguationWE(base);
+		SynsetDisambiguationWE disam = new SynsetDisambiguationWE(base,compound);
 		disam.disambiguation(listDom);
 	}
 	
@@ -519,7 +470,7 @@ public class Main {
 		}
 	}
 	
-	private static String sp_model(String[] args) {
+	/*private static String sp_model(String[] args) {
 		if(args[3].contains(":")) {
 			int aux = args[3].indexOf(":");
 			String model = args[3].substring(aux+1);
@@ -528,6 +479,19 @@ public class Main {
 		} else {
 			return "";
 		}
+	}*/
+	
+	private static String[] sp_options(String[] args) {
+		String[] op = {"","",""}; 
+		if(args[3].substring(1,2).equals(":") && args[3].substring(3,4).equals(":")) {
+			op[0] = args[3].substring(0,1);
+			op[1] = args[3].substring(2,3);
+			op[2] = args[3].substring(4);
+			return op;
+		} else {
+			System.out.println("**ERROR**");
+			return null;			
+		}
 	}
-				
+	
 }

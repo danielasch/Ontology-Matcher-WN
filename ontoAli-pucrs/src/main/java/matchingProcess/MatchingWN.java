@@ -23,6 +23,10 @@ public class MatchingWN extends RDF{
 	
 	private BaseResource base;
 	
+	
+//Log Methods
+	
+	
 	private void init_log() {
 		SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
 		System.out.println(sdf.format(Calendar.getInstance().getTime()) + " - [log] - Matching ontologies..." );
@@ -32,6 +36,10 @@ public class MatchingWN extends RDF{
 		SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
 		System.out.println(sdf.format(Calendar.getInstance().getTime()) + " - [log] - Ontologies matched!" );
 	}
+
+	
+//Constructor 
+	
 	
 	public MatchingWN(BaseResource _base, String _localfile) {
 		List<Mapping>lstmap = new LinkedList<>();
@@ -40,10 +48,15 @@ public class MatchingWN extends RDF{
 		set_file(_localfile);
 	}
 	
+	
+//Methods
+	
+	/*
+	 * Start the matching process
+	 */
 	public void match(List<Concept> listDom, List<Concept> listUp) {
 		init_log();
 		for(Concept cnp: listDom) {
-			//System.out.println(cnp.get_className());
 			if(cnp.get_goodSynset() != null) {
 				matchHyp(cnp, listUp);
 			}	
@@ -67,18 +80,20 @@ public class MatchingWN extends RDF{
 		ISynset synset = cnp.get_goodSynset();
 		int cont = 0;
 		Concept align = null;
+		
 		ConceptManager man = new ConceptManager();
 		outObjectWNH nc = new outObjectWNH();
+		
 		nc.set_synset(synset);
 		nc.set_cont(cont);
 		nc.create_list();
 		findHypers(dict, synset, listUp, map, cont, nc);
 		dict.close();
 		align = rightCnp(map);
+		
 		if(align != null) {
 			Mapping mappin = new Mapping();
 			man.config_aliClass(cnp, align.get_owlClass());
-			//man.config_object(cnp, ooList);
 			mappin.set_source(cnp.get_classID());
 			mappin.set_target(align.get_classID());
 			mappin.set_measure("1.0");
@@ -87,15 +102,19 @@ public class MatchingWN extends RDF{
 		}
 		man.config_object(cnp, nc);
 		map.clear();
-		//System.out.println("cnp: " + cnp.get_className() + "\n");
-		//System.out.println(synset);
-		//something(nc);
 	}
 	
+	
+	/*
+	 * Returns the Hypernym of a certain synset 
+	 */
 	private List<ISynsetID> getHyper(ISynset synset) {
 		return synset.getRelatedSynsets(Pointer.HYPERNYM);
 	}
 	
+	/*
+	 * Searches for the synset words that matches a Top Ont. Concept
+	 */
 	private Concept search(ISynset synset, List<Concept> listUp) {
 		List<IWord> listIW = synset.getWords();
 		Concept align = null;
@@ -105,7 +124,10 @@ public class MatchingWN extends RDF{
 		}
 		return align;
 	}
-	
+		
+	/*
+	 * Searches for a Top Ont. Conept that matches a certain word (str that contains the synset of hypernym)
+	 */
 	private Concept searchTop(String word, List<Concept> listUp) {
 		for(Concept up: listUp) {
 			if(up.get_className().toLowerCase().equals(word.toLowerCase())) {
@@ -115,35 +137,37 @@ public class MatchingWN extends RDF{
 		return null;
 	}
 	
+	
+	/*
+	 * Runs the Word Net Hypernyms structure
+	 */
 	private void findHypers(IDictionary dict, ISynset synset, List<Concept> listUp, Map<Concept, Integer> map, int cont, outObjectWNH nc) {
 		if(synset != null) {
 			ISynset synsetAux = null;
 			Concept align = null;
 			
-			//System.out.println(synset + "   " + cont);
 			List<ISynsetID> hyp = getHyper(synset);
-			//System.out.println("--" + hyp);
 			if(!hyp.isEmpty()) {
 				cont++;
-				//nc.create_list();
 				for(ISynsetID synsetID: hyp) {
 					synsetAux = dict.getSynset(synsetID);
-					//System.out.println("----" + synsetAux);
 					outObjectWNH nnc = new outObjectWNH(synsetAux, cont);
 					nc.add_list(nnc);
 					align = search(synsetAux, listUp);
 
 					if(align != null) {
-						//System.out.println("ALIGN: " + align.get_className());
 						map.put(align, cont);
 					}
 					findHypers(dict, synsetAux, listUp, map, cont, nnc);
-					//System.out.println(cont);
 				}
 			}
 		}
 	}
 	
+	
+	/*
+	 *	Returns the lower level aligned hypernym 
+	 */
 	private Concept rightCnp(Map<Concept, Integer> map) {
 		if(map.size() == 1) {
 			return map.entrySet().iterator().next().getKey();
@@ -163,14 +187,4 @@ public class MatchingWN extends RDF{
 		}
 	}
 	
-	private void something(outObjectWNH nc) {
-		if(nc != null) {
-			nc.print();
-			//if(nc.get_list() != null) {
-			for(outObjectWNH nnc: nc.get_list()) {
-				something(nnc);
-			//}
-			}
-		}
-	}
 }

@@ -19,11 +19,19 @@ import objects.ConceptManager;
  * This class extract the information about a concept from the ontology
  */
 public class ContextExtraction {
+	private int fullcontext;
 	
 //Constructor
 	
+	ContextExtraction(int fullcntx) {
+        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
+        this.fullcontext = fullcntx;
+		System.out.println(sdf.format(Calendar.getInstance().getTime()) + " - [log] - Context method selected!" );
+	}
+	
 	ContextExtraction() {
         SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
+        this.fullcontext = 0;
 		System.out.println(sdf.format(Calendar.getInstance().getTime()) + " - [log] - Context method selected!" );
 	}
 	
@@ -51,10 +59,21 @@ public class ContextExtraction {
 	
 //Methods
 	
+	protected List<Concept> extract_init(OWLOntology onto) {
+		if(this.fullcontext == 0) {
+			return extract(onto);
+		} else if(this.fullcontext == 1) {
+			return extract_full(onto);
+		} else {
+			System.out.println("**ERROR**");
+			return null;
+		}
+	}
+	
 	/*
 	 * Extracts the concept and its information from domain ontology
 	 */
-	protected List<Concept> extract(OWLOntology onto) {
+	private List<Concept> extract(OWLOntology onto) {
 		init_log();
 		//the list with all concepts extracted 
 		List<Concept> listCon = new ArrayList<Concept>();
@@ -105,6 +124,68 @@ public class ContextExtraction {
 		}
 		final_log();
 		return listCon;
+	}
+	
+	/*
+	 * Extracts the concept and its information from domain ontology and sets the context of a concept as the full ontology
+	 */
+	private List<Concept> extract_full(OWLOntology onto) {
+		init_log();
+		//the list with all concepts extracted 
+		List<Concept> listCon = new ArrayList<Concept>();
+		ConceptManager man = new ConceptManager();
+		Set<String> full = new HashSet<String>();
+		
+		for(OWLClass owlClass: onto.getClassesInSignature()) {
+			full.add(owlClass.getIRI().getFragment());
+			if(!owlClass.isTopEntity()) {
+
+				//instantiate the Concept class
+				Concept concept = new Concept();
+				Set<String> context = new HashSet<String>();
+				String desc = null;
+            	List<OWLClassExpression> listSup = new ArrayList<OWLClassExpression>();
+            	List<OWLClassExpression> listSub = new ArrayList<OWLClassExpression>();
+				
+            	//extracts the super-owlclasses
+				extract_superClass(onto, owlClass, null, listSup);
+
+            	if(listSup.isEmpty() || verifyTHING(listSup)) { 
+            		//sets the ontology into the concept class
+            		man.config_owlOntology(concept, onto);
+            		//sets the owlclass into the concept class
+					man.config_owlClass(concept, owlClass);
+					//sets the owlclassID into the concept class
+					man.config_classId(concept, owlClass.toString());
+					//sets the owlclass name into the concept class
+					man.config_className(concept, owlClass.getIRI().getFragment());
+            		
+					//desc receive the annotation of a concept
+					desc = extract_annotation(onto, owlClass, context);
+					//sets the description into the concept class
+					man.config_description(concept, desc);
+					//extracts the sub-owlclasses
+					extract_subClass(onto, owlClass, null, listSub);
+					//sets the context list into a cocnept class
+					man.config_context(concept, context);
+					//sets the super-owlclasses list into a concept class
+					man.config_supers(concept, listSup);
+					//sets the sub-owlclasses list into a concept class
+					man.config_subs(concept, listSub);
+					//adds the Concept into a list
+					listCon.add(concept);
+            	}
+			}
+		}
+		setter_full_context(listCon, full);
+		final_log();
+		return listCon;
+	}
+	
+	private void setter_full_context(List<Concept> listCon, Set<String> full) {
+		for(Concept cnp: listCon) {
+			cnp.get_context().addAll(full);
+		}
 	}
 	
 	/*
@@ -250,8 +331,10 @@ public class ContextExtraction {
 	 */
 	protected void extract_superClass(OWLOntology onto, OWLClass cls, Set<String> cntxt, List<OWLClassExpression> list) {
 		for(OWLClassExpression sup: cls.getSuperClasses(onto)) {
-        	if(!sup.isAnonymous()) {					   		
-        		cntxt.add(sup.asOWLClass().getIRI().getFragment().toString());
+        	if(!sup.isAnonymous()) {
+        		if(cntxt != null) {
+        			cntxt.add(sup.asOWLClass().getIRI().getFragment().toString());
+        		}
         		list.add(sup);
         		
         		extract_superRecurClass(onto, sup, cntxt, list);	 	
@@ -268,7 +351,9 @@ public class ContextExtraction {
         	
 				if(!sup.isAnonymous()) {					
 					list.add(sup);
-					cntxt.add(sup.asOWLClass().getIRI().getFragment().toString());
+					if(cntxt != null) {
+	        			cntxt.add(sup.asOWLClass().getIRI().getFragment().toString());
+	        		}
 					
 					extract_superRecurClass(onto, sup, cntxt, list); 	
 				}	
@@ -281,8 +366,10 @@ public class ContextExtraction {
 	 */
 	protected void extract_subClass(OWLOntology onto, OWLClass cls, Set<String> cntxt, List<OWLClassExpression> list) {
 		for(OWLClassExpression sub: cls.getSubClasses(onto)) {
-        	if(!sub.isAnonymous() && cntxt != null) {
-        		cntxt.add(sub.asOWLClass().getIRI().getFragment().toString());
+        	if(!sub.isAnonymous()) {
+        		if(cntxt != null) {
+        			cntxt.add(sub.asOWLClass().getIRI().getFragment().toString());
+        		}
         		list.add(sub);
         		
         		extract_subRecurClass(onto, sub, cntxt, list);
@@ -298,8 +385,10 @@ public class ContextExtraction {
 		if(su != null) {
 			for(OWLClassExpression sub: su.asOWLClass().getSubClasses(onto)) {				
 				if(!sub.isAnonymous()) {
+					if(cntxt != null) {
+	        			cntxt.add(sub.asOWLClass().getIRI().getFragment().toString());
+	        		}
 	        		list.add(sub);
-	        		cntxt.add(sub.asOWLClass().getIRI().getFragment().toString());
 	        		
 	        		extract_subRecurClass(onto, sub, cntxt, list);
 				}

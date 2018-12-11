@@ -16,7 +16,7 @@ public class RDF {
 		//Map list
 		protected List<Mapping> listMap;
 		//path to write the rdf file
-		private String localfile;
+		protected String localfile;
 	
 		private void out_log() {
 			SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");

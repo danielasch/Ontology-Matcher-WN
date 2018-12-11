@@ -47,40 +47,40 @@ public class Main {
 		String[] op = sp_options(args);
 		int tec = Integer.parseInt(op[0]);
 		int compound = Integer.parseInt(op[1]);
-		String model = op[2];
-		
+		int fullcntx = Integer.parseInt(op[2]);
+		String model = op[3];
 		
 		switch(tec) {
 			case 1:
-				lesk(args, compound);
+				lesk(args, compound, fullcntx);
 				break;
 			case 2:
-				wordEmbedding(args, compound, model);
+				wordEmbedding(args, compound, model, fullcntx);
 				break;
 			case 3:
-				directWE(args, model);//modelo word embedings
+				directWE(args, model, fullcntx);//modelo word embedings
 				break;
 			case 4:
-				directWN(args, compound);
+				directWN(args, compound, fullcntx);
 				break;
 			case 5:
-				levenshteinDistance(args, compound);
+				levenshteinDistance(args, compound, fullcntx);
 				break;
 			default:
 				System.out.println("Invalid arguments order, please try:\n" + 
 						"1º) domain ontology path\n" +
 						"2º) out file path\n" + 
 						"3º) top ontology selection [sumo or dolce]\n" +
-						"4º) technic selection [technic:compound:model\n" +
+						"4º) technic selection [technic:compound:model]\n" +
 						"TECHNIC --> 1, 2, 3, 4 or 5 - select a certain technic\n" +
-						"\t 1 - Overlapping\n" +
-						"\t 2 - WordEmbeddings\n" +
-						"\t 3 - Resnik\n" +
-						"\t 4 - Lin\n" +
-						"\t 5 - Wup\n" +
-						"COMPOUND --> 0 or 1 - activate searching for compounds term on WORD NET\n" +
+						"\t 1 - Lesk\n" +
+						"\t 2 - Word Embeddings\n" +
+						"\t 3 - Direct Word Embedding\n" +
+						"\t 4 - WordNet Hierarchical Structure\n" +
+						"\t 5 - Levenshtein Distance\n\n" +
+						"COMPOUND --> 0 or 1 - activate searching for compounds terms on WORDNET\n" +
 						"\t 0 - off\n" +
-						"\t 1 - on\n" +
+						"\t 1 - on\n\n" +
 						"MODEL --> 1 or 2 - select the Word Embedding model\n" + 
 						"\t glove - GloVe\n" +
 						"\t google - GoogleNewsModel\n" +
@@ -90,7 +90,7 @@ public class Main {
 		fTime(start);
 	}
 	
-	private static void levenshteinDistance(String[] args, int single) {
+	private static void levenshteinDistance(String[] args, int single, int fullcntx) {
 		String topOnto = args[2].toLowerCase();
 		List<Concept> listDom = null;
 		List<Concept> listUp = null;
@@ -100,8 +100,9 @@ public class Main {
 			case "dolce":
 				Ontology upperD = new Ontology("resources/wnNounsyn_v7.owl");
 
-				listDom = domain(domain);
+				listDom = domain(domain, fullcntx);
 				listUp = dolce(upperD);
+
 				disambLD(listDom, single);
 				matchDolce(domain, upperD, args[1], listDom, listUp);
 				out(args[1], listDom);
@@ -109,7 +110,7 @@ public class Main {
 				break;
 			case "sumo":
 				Ontology upperS = new Ontology("resources/SUMO.owl");
-				listDom = domain(domain);
+				listDom = domain(domain, fullcntx);
 				listUp = sumo(upperS);
 				disambLD(listDom, single);
 				matchSumo(domain, upperS, args[1], listDom, listUp);
@@ -122,7 +123,7 @@ public class Main {
 		}
 	}
 	
-	private static void directWN(String[] args, int single) {
+	private static void directWN(String[] args, int single, int fullcntx) {
 		String topOnto = args[2].toLowerCase();
 		List<Concept> listDom = null;
 		List<Concept> listUp = null;
@@ -132,7 +133,7 @@ public class Main {
 			case "dolce":
 				Ontology upperD = new Ontology("resources/DOLCE-Lite.owl");
 
-				listDom = domain(domain);
+				listDom = domain(domain, fullcntx);
 				listUp = dolce(upperD);
 				disamb(listDom, single);
 				matchWN(domain, upperD, args[1], listDom, listUp);
@@ -141,7 +142,7 @@ public class Main {
 				break;
 			case "sumo":
 				Ontology upperS = new Ontology("resources/SUMO.owl");
-				listDom = domain(domain);
+				listDom = domain(domain, fullcntx);
 				listUp = sumo(upperS);
 				disamb(listDom, single);
 				matchWN(domain, upperS, args[1], listDom, listUp);
@@ -154,7 +155,7 @@ public class Main {
 		}
 	}
 	
-	private static void directWE(String[] args, String model) {
+	private static void directWE(String[] args, String model, int fullcntx) {
 		String topOnto = args[2].toLowerCase();
 		List<Concept> listDom = null;
 		List<Concept> listUp = null;
@@ -164,7 +165,7 @@ public class Main {
 			case "dolce":
 				Ontology upperD = new Ontology("resources/DOLCE-Lite.owl");
 
-				listDom = domain(domain);
+				listDom = domain(domain, fullcntx);
 				listUp = dolceT(upperD);
 				matchWE(domain, upperD, args[1], listDom, listUp, model);
 				outWE(args[1], listDom);
@@ -172,7 +173,7 @@ public class Main {
 				break;
 			case "sumo":
 				Ontology upperS = new Ontology("resources/SUMO.owl");
-				listDom = domain(domain);
+				listDom = domain(domain, fullcntx);
 				listUp = sumoT(upperS);
 				matchWE(domain, upperS, args[1], listDom, listUp, model);
 				outWE(args[1], listDom);
@@ -184,7 +185,7 @@ public class Main {
 		}
 	}
 	
-	private static void lesk(String[] args, int single) {
+	private static void lesk(String[] args, int single, int fullcntx) {
 		String topOnto = args[2].toLowerCase();
 		List<Concept> listDom = null;
 		List<Concept> listUp = null;
@@ -194,7 +195,7 @@ public class Main {
 			case "dolce":
 				Ontology upperD = new Ontology("resources/wnNounsyn_v7.owl");
 
-				listDom = domain(domain);
+				listDom = domain(domain, fullcntx);
 				listUp = dolce(upperD);
 				disamb(listDom, single);
 				matchDolce(domain, upperD, args[1], listDom, listUp);
@@ -203,7 +204,7 @@ public class Main {
 				break;
 			case "sumo":
 				Ontology upperS = new Ontology("resources/SUMO.owl");
-				listDom = domain(domain);
+				listDom = domain(domain, fullcntx);
 				listUp = sumo(upperS);
 				disamb(listDom, single);
 				matchSumo(domain, upperS, args[1], listDom, listUp);
@@ -216,7 +217,7 @@ public class Main {
 		}
 	}
 	
-	private static void wordEmbedding(String[] args, int compound, String model) {
+	private static void wordEmbedding(String[] args, int compound, String model, int fullcntx) {
 		String topOnto = args[2].toLowerCase();
 		List<Concept> listDom = null;
 		List<Concept> listUp = null;
@@ -226,7 +227,7 @@ public class Main {
 			case "dolce":
 				Ontology upperD = new Ontology("resources/wnNounsyn_v7.owl");
 
-				listDom = domain(domain);
+				listDom = domain(domain, fullcntx);
 				listUp = dolce(upperD);
 				disambWE(listDom, model, compound);
 				matchDolce(domain, upperD, args[1], listDom, listUp);
@@ -235,7 +236,7 @@ public class Main {
 				break;
 			case "sumo":
 				Ontology upperS = new Ontology("resources/SUMO.owl");
-				listDom = domain(domain);
+				listDom = domain(domain, fullcntx);
 				listUp = sumo(upperS);
 				disambWE(listDom, model, compound);
 				matchSumo(domain, upperS, args[1], listDom, listUp);
@@ -281,11 +282,11 @@ public class Main {
 		return listUp;
 	}
 	
-	private static List<Concept> domain(Ontology domain) {
+	private static List<Concept> domain(Ontology domain, int fullcntx) {
 		List<Concept> listDom = new ArrayList<Concept>();
 		
-		ContextExtraction exct = new ContextExtraction();
-		listDom = exct.extract(domain.get_ontology());
+		ContextExtraction exct = new ContextExtraction(fullcntx);
+		listDom = exct.extract_init(domain.get_ontology());
 		return listDom;
 	}
 	
@@ -470,23 +471,13 @@ public class Main {
 		}
 	}
 	
-	/*private static String sp_model(String[] args) {
-		if(args[3].contains(":")) {
-			int aux = args[3].indexOf(":");
-			String model = args[3].substring(aux+1);
-			args[3] = args[3].substring(0, aux);
-			return model;
-		} else {
-			return "";
-		}
-	}*/
-	
 	private static String[] sp_options(String[] args) {
-		String[] op = {"","",""}; 
-		if(args[3].substring(1,2).equals(":") && args[3].substring(3,4).equals(":")) {
+		String[] op = {"","","", ""}; 
+		if(args[3].substring(1,2).equals(":") && args[3].substring(3,4).equals(":") && args[3].substring(5,6).equals(":")) {
 			op[0] = args[3].substring(0,1);
 			op[1] = args[3].substring(2,3);
-			op[2] = args[3].substring(4);
+			op[2] = args[3].substring(4,5);
+			op[3] = args[3].substring(5);
 			return op;
 		} else {
 			System.out.println("**ERROR**");

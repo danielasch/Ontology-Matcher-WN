@@ -2,9 +2,7 @@ package matchingProcess;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -19,20 +17,19 @@ import org.semanticweb.owlapi.model.OWLOntology;
 import edu.mit.jwi.item.ISynset;
 import objects.Concept;
 import objects.ConceptManager;
-import objects.Ontology;
 
 
 /*
  * This class matches Domain Ont. classes with Top Ont. classes
  */
-public class Matching {
+public class Matching extends RDF{
 
 //Attributes
 	
 	//Map list
-	private List<Mapping> listMap;
+	//private List<Mapping> listMap;
 	//path to write the rdf file
-	private String localfile;
+	//private String localfile;
 
 //Constructor	
 	
@@ -59,10 +56,10 @@ public class Matching {
 		System.out.println(sdf.format(Calendar.getInstance().getTime()) + " - [log] - Ontologies matched!" );
 	}
 	
-	private void out_log() {
+	/*private void out_log() {
 		SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
 		System.out.println(sdf.format(Calendar.getInstance().getTime()) + " - [log] - RDF file generated!" );
-	}
+	}*/
 
 //Methods
 	
@@ -70,8 +67,8 @@ public class Matching {
 	 * Turn the mapping class into a string
 	 * to write the rdf file
 	 */
-	private String toRDF(Mapping m) {
-		
+	/*private String toRDF(Mapping m) {
+
 		String out = "\t<map>\n" +
 				"\t\t<Cell>\n" +
 				"\t\t\t<entity1 rdf:resource='"+ m.get_target() +"'/>\n" +
@@ -80,12 +77,12 @@ public class Matching {
 				"\t\t\t<measure rdf:datatype='http://www.w3.org/2001/XMLSchema#float'>"+ m.get_measure() +"</measure>\n" +
 				"\t\t</Cell>\n" + "\t</map>\n";
 		return out;		
-	}
+	}*/
 	
 	/*
 	 * Writes the rdf file
 	 */
-	public void out_rdf(Ontology onto1, Ontology onto2) {
+	/*public void out_rdf(Ontology onto1, Ontology onto2) {
 		
 		try {
 			FileWriter arq = new FileWriter(localfile);
@@ -112,6 +109,9 @@ public class Matching {
 		
 			for(Mapping m: listMap) {
 				if(!m.get_measure().equals("false")) {
+					System.out.println(listMap);
+					System.out.println(m.get_source());
+					System.out.println(m.get_relation());
 					print.print(toRDF(m));
 				}
 			}
@@ -125,7 +125,7 @@ public class Matching {
 	    	System.out.println("erro: " + e);
 			
 		}
-	}
+	}*/
 
 //Methods
 	

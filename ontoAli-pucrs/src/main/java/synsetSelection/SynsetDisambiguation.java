@@ -21,12 +21,7 @@ import resources.Utilities;
 /*
  * This class disambiguate the recovered synsets for a concept
  */
-public class SynsetDisambiguation extends SynsetBasic {
-	
-//Attributes
-	
-	//BaseResource contains the necessary resources to execute the disambiguation
-	//private BaseResource base;
+public class SynsetDisambiguation extends SynsetBasic {	
 	
 //Constructor
 	

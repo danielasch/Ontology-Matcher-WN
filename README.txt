@@ -72,7 +72,7 @@
 	-[alignment technic:compound term:word embedding model] 
 		aligment technic - (1, 2, 3, 4 or 5)
 		compound term - (0 = on and 1 = off)
-		word embedding model - (google = Google News Model and glove = GloVe Model)
+		word embedding model - (google = Google News Model, glove = GloVe Model or zero = null)
 		
 		ex: 2:0:google
 		

@@ -1,8 +1,5 @@
 package matchingProcess;
 
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -13,7 +10,6 @@ import java.util.Set;
 
 import objects.Concept;
 import objects.ConceptManager;
-import objects.Ontology;
 import objects.OutObjectWE;
 import resources.BaseResource;
 
@@ -21,14 +17,14 @@ import resources.BaseResource;
 /*
  * This class matches Domain Ont. classes with Top Ont. classes
  */
-public class MatchingWE {
+public class MatchingWE extends RDF{
 
 	//Attributes
 		
 		//Map list
-		private List<Mapping> listMap;
+		//private List<Mapping> listMap;
 		//path to write the rdf file
-		private String localfile;
+		//private String localfile;
 		
 		private BaseResource baseresource;
 	//Constructor	
@@ -57,10 +53,10 @@ public class MatchingWE {
 			System.out.println(sdf.format(Calendar.getInstance().getTime()) + " - [log] - Ontologies matched!" );
 		}
 		
-		private void out_log() {
+		/*private void out_log() {
 			SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
 			System.out.println(sdf.format(Calendar.getInstance().getTime()) + " - [log] - RDF file generated!" );
-		}
+		}*/
 
 	//Methods
 		
@@ -68,7 +64,7 @@ public class MatchingWE {
 		 * Turn the mapping class into a string
 		 * to write the rdf file
 		 */
-		private String toRDF(Mapping m) {
+	/*	private String toRDF(Mapping m) {
 			
 			String out = "\t<map>\n" +
 					"\t\t<Cell>\n" +
@@ -78,12 +74,12 @@ public class MatchingWE {
 					"\t\t\t<measure rdf:datatype='http://www.w3.org/2001/XMLSchema#float'>"+ m.get_measure() +"</measure>\n" +
 					"\t\t</Cell>\n" + "\t</map>\n";
 			return out;		
-		}
+		}*/
 		
 		/*
 		 * Writes the rdf file
 		 */
-		public void out_rdf(Ontology onto1, Ontology onto2) {
+		/*public void out_rdf(Ontology onto1, Ontology onto2) {
 			
 			try {
 				FileWriter arq = new FileWriter(localfile);
@@ -123,7 +119,7 @@ public class MatchingWE {
 		    	System.out.println("erro: " + e);
 				
 			}
-		}
+		}*/
 		
 		public void match(List<Concept> listDom, List<Concept> listUp) {
 			init_log();

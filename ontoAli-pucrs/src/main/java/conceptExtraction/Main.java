@@ -472,15 +472,21 @@ public class Main {
 	}
 	
 	private static String[] sp_options(String[] args) {
-		String[] op = {"","","", ""}; 
+		String[] op = {"","","",""}; 
 		if(args[3].substring(1,2).equals(":") && args[3].substring(3,4).equals(":") && args[3].substring(5,6).equals(":")) {
 			op[0] = args[3].substring(0,1);
 			op[1] = args[3].substring(2,3);
 			op[2] = args[3].substring(4,5);
 			op[3] = args[3].substring(5);
 			return op;
-		} else {
+		} else if(args[3].substring(1,2).equals(":") && args[3].substring(3,4).equals(":")) {
+			op[0] = args[3].substring(0,1);
+			op[1] = args[3].substring(2,3);
+			op[2] = args[3].substring(4,5);
+			return op;
+		} else {	
 			System.out.println("**ERROR**");
+			System.out.println("4th argument is invalid! Please try something like:\n");
 			return null;			
 		}
 	}

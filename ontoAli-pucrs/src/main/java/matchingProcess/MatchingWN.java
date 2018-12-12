@@ -25,8 +25,7 @@ public class MatchingWN extends RDF{
 	
 	
 //Log Methods
-	
-	
+		
 	private void init_log() {
 		SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
 		System.out.println(sdf.format(Calendar.getInstance().getTime()) + " - [log] - Matching ontologies..." );

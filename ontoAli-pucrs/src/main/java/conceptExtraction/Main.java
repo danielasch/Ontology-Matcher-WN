@@ -105,7 +105,7 @@ public class Main {
 
 				disambLD(listDom, single);
 				matchDolce(domain, upperD, args[1], listDom, listUp);
-				out(args[1], listDom);
+				outLD(args[1], listDom);
 				evaluate(args);
 				break;
 			case "sumo":
@@ -114,7 +114,7 @@ public class Main {
 				listUp = sumo(upperS);
 				disambLD(listDom, single);
 				matchSumo(domain, upperS, args[1], listDom, listUp);
-				out(args[1], listDom);
+				outLD(args[1], listDom);
 				evaluate(args);
 				break;
 			default:
@@ -354,6 +354,11 @@ public class Main {
 		out.out_file(listDom);
 	}
 	
+	private static void outLD(String outPath, List<Concept> listDom) {
+		OutFiles out = new OutFiles(outPath);
+		out.out_file_LD(listDom);
+	}
+	
 	private static void outWNWE(String outPath, List<Concept> listDom) {
 		OutFiles out = new OutFiles(outPath);
 		out.out_file_we_wn_pair(listDom);
@@ -440,12 +445,25 @@ public class Main {
 		outFile = outFile.concat(aux + "-" + args[2]);
 		outFileLog = outFileLog.concat("out-" + aux + "-" + args[2]);
 		
-		if(args[3].contains("2")) {
+		if(args[3].substring(0, 1).contains("1")) {
+			outFile = outFile.concat("-lesk.rdf");
+			outFileLog = outFileLog.concat("-lesk.txt");
+			
+		} else if(args[3].substring(0, 1).contains("2")) {
 			outFile = outFile.concat("-WE.rdf");
 			outFileLog = outFileLog.concat("-WE.txt");
-		} else if(args[3].contains("6")) {
-			outFile = outFile.concat("-noWN-WE.rdf");
-			outFileLog = outFileLog.concat("-noWN-WE.txt");
+			
+		} else if(args[3].substring(0, 1).contains("3")) {
+			outFile = outFile.concat("-dWE.rdf");
+			outFileLog = outFileLog.concat("-dWE.txt");
+			
+		} else if(args[3].substring(0, 1).contains("4")) {
+			outFile = outFile.concat("-dWN.rdf");
+			outFileLog = outFileLog.concat("-WN.txt");	
+			
+		} else if(args[3].substring(0, 1).contains("5")) {
+			outFile = outFile.concat("-LD.rdf");
+			outFileLog = outFileLog.concat("-LD.txt");	
 		} else {
 			outFile = outFile.concat(".rdf");
 			outFileLog = outFileLog.concat(".txt");
@@ -473,7 +491,7 @@ public class Main {
 	
 	private static String[] sp_options(String[] args) {
 		String[] op = {"","","",""}; 
-		if(args[3].substring(1,2).equals(":") && args[3].substring(3,4).equals(":") && args[3].substring(5,6).equals(":")) {
+		if(args[3].length() > 6) {
 			op[0] = args[3].substring(0,1);
 			op[1] = args[3].substring(2,3);
 			op[2] = args[3].substring(4,5);

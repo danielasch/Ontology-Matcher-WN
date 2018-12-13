@@ -2,10 +2,11 @@ package synsetSelection;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.LinkedHashMap;
+import java.util.HashMap;
 import java.util.List;
-
+import java.util.Map;
 
 import edu.mit.jwi.IDictionary;
 import edu.mit.jwi.item.IIndexWord;
@@ -15,16 +16,12 @@ import edu.mit.jwi.item.IWordID;
 import edu.mit.jwi.item.POS;
 import objects.Concept;
 import objects.ConceptManager;
+import objects.OutObjectLD;
+import objects.OutObjectLD.parLD;
 import resources.BaseResource;
 import resources.StanfordLemmatizer;
-import resources.Utilities;
 
 public class SynsetDisambiguationLD extends SynsetBasic{
-	//Attributes
-	
-		//BaseResource contains the necessary resources to execute the disambiguation
-		//private BaseResource base;
-		//private int single;
 		
 	//Constructor
 		
@@ -74,12 +71,6 @@ public class SynsetDisambiguationLD extends SynsetBasic{
 			//The lemmatizer
 			StanfordLemmatizer slem = this.base.get_lemmatizer();
 			ConceptManager man = new ConceptManager();
-			//Utilities carries the temp1 list and the numSy of a concept
-			Utilities ut = new Utilities();
-			//temp1 saves the synset and its bag of words (OutFiles use only)
-			LinkedHashMap<ISynset, List<String>> temp1 = new LinkedHashMap<ISynset, List<String>>();
-			//numSy will receive the number of synsets recovered to a concept (OutFiles use only)
-			int numSy = 0;
 			
 			List<String> context = slem.toList(concept.get_context());
 			
@@ -104,11 +95,16 @@ public class SynsetDisambiguationLD extends SynsetBasic{
 				int numSynset = wordIds.size();
 				//if numSynset is different than 1, then the 
 				//disambiguation process occurs
+				
+				List<OutObjectLD> listOOLD = new ArrayList<>(numSynset);
 				if(numSynset != 1) {
 					for (IWordID wordId : wordIds) {
 						IWord word = dict.getWord(wordId);
 						ISynset synset = word.getSynset();
-						//System.out.println(synset);
+						
+						OutObjectLD oold = new OutObjectLD();
+						oold.set_synset(synset);
+						
 						//wordsSynset receive the words that composes the synset
 						List<IWord> wordsSynset = synset.getWords();
 						//glossSynset receive the gloss of the synset
@@ -118,11 +114,7 @@ public class SynsetDisambiguationLD extends SynsetBasic{
 						//words that compose the synset
 						List<String> bagSynset = createBagWords(wordsSynset, glossSynset);
 						
-						//temporary map that saves the synset and its bag of words
-						temp1.put(synset, bagSynset);
-						//size receive the number of overlaps between two lists
-						
-						float value = calculate(context, bagSynset);
+						float value = calculate(context, bagSynset, oold);
 						//System.out.println(size);
 						
 						
@@ -131,48 +123,59 @@ public class SynsetDisambiguationLD extends SynsetBasic{
 							//sets the synset of a concept
 							man.config_synset(concept, synset);
 						}
-						numSy++;
+						
+						listOOLD.add(oold);
 					}
-					//utilities set the number os synsets
-					ut.set_numSy(numSy);
+
 				} else {
 					IWordID wordId = wordIds.get(0);
 					IWord word = dict.getWord(wordId);
 					ISynset synset = word.getSynset();
 					man.config_synset(concept, synset);
-					//utilities set the number os synsets,
-					//in this case 1
-					ut.set_numSy(1);
+	
+					OutObjectLD oold = new OutObjectLD();
+					oold.set_synset(synset);
+					
+					listOOLD.add(oold);
 				}
+				man.config_object(concept,listOOLD);
 			}
 			//closes the IDictionary
 			dict.close();
-			//utilities sets the synset and the bag of words map
-			ut.set_synsetCntx(temp1);
-			//sets the utilities of a concept
-			man.config_utilities(concept, ut);
 		}
 		
 		/*
 		 * Levenshtein Distance calculation
 		 */
 		
-		private float calculate(List<String> context, List<String> bagSynset) {
+		private float calculate(List<String> context, List<String> bagSynset, OutObjectLD oold) {
 			float value = 0;
+			
+			List<parLD> listpld = new ArrayList<parLD>(context.size());
+			
 			for(String element_c: context) {
 				float medium = 0;
+				
+				parLD pld = oold.instance_parLD();
+				Map<String, Float> par = new HashMap<>();
+				pld.set_element_ctx(element_c);
+				
 				for(String element_b: bagSynset) {
-					//System.out.println(element_c + "\t" + element_b );
 					float quick = computeLevenshteinDistance(element_c, element_b);
-					//System.out.println("quick: " + quick);
 					medium = medium + quick;
+					par.put(element_b, quick);
 				}
-				//System.out.println("medio: " + medium + "\n");
 				value = value + medium;
+				
+				pld.set_total(medium);
+				pld.set_par(par);
+				listpld.add(pld);
 			}
-			//System.out.println("value: " + value);
+			oold.set_ctxList(listpld);
+			oold.set_valor_total(value);
 			return value;
 		}
+		
 		private int minimum(int a, int b, int c) {
 			return Math.min(Math.min(a, b), c);
 		}

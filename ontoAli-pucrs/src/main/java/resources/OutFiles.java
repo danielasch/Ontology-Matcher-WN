@@ -11,6 +11,8 @@ import java.util.Map.Entry;
 
 import edu.mit.jwi.item.ISynset;
 import objects.Concept;
+import objects.OutObjectLD;
+import objects.OutObjectLD.parLD;
 import objects.OutObjectWE;
 import objects.outObjectWNH;
 
@@ -271,6 +273,50 @@ public class OutFiles {
 			for(outObjectWNH nnc: nc.get_list()) {
 				print(nnc, list);
 			}
+		}
+	}
+	
+	/*
+	 * Generates the text file for the overlapping technique
+	 */
+	@SuppressWarnings("unchecked")
+	public void out_file_LD(List<Concept> listDomain) {
+		try {
+			FileWriter arq = new FileWriter(this.outPath);
+			PrintWriter printer = new PrintWriter(arq);
+			
+			for(Concept cnp: listDomain) {
+				printer.print("NOME: " + cnp.get_className() + "\n");
+				printer.print("Desc: " + cnp.get_desc() + "\n");
+				printer.print("Supers: " + cnp.get_supers() + "\n");
+				printer.print("Subs: " + cnp.get_subs() + "\n");
+				printer.print("Contexto: " + cnp.get_context() + "\n");
+				printer.print("Conceito Topo alinhado: " + cnp.get_aliClass() + "\n");
+				printer.print("Synset selecionado: " + cnp.get_goodSynset() + "\n");
+
+				printer.print("Conjunto de synsets recuperados:\n");
+				int cont = 0;
+				for(OutObjectLD oold: (List<OutObjectLD>) cnp.get_obj()) {
+					cont++;
+					printer.print("Synset " + cont + ": " + oold.get_synset() + "\n");
+					printer.print("Somatorio total: " + oold.get_valor_total() + "\n\n");
+					if(oold.get_ctxList() != null) {
+						for(parLD pld: oold.get_ctxList()) {
+							for(Entry<String, Float> entry: pld.get_par().entrySet()) {
+								printer.print("\t" + pld.get_element_ctx() + " - " + entry.getKey() + " : " + entry.getValue() + "\n");
+							}
+							printer.print("\tSomatorio: " + pld.get_total() + "\n\n");
+						}
+					
+					}
+				}
+				printer.print("\n----------\n");
+				
+			}
+		arq.close();
+		} catch(IOException e) {
+			System.out.println("Operação I/O interrompida, no arquivo de saída syCNTXT!");
+	    	System.out.println("erro: " + e);
 		}
 	}
 

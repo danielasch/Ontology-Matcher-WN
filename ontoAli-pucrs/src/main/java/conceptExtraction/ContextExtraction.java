@@ -223,11 +223,9 @@ public class ContextExtraction {
 		init_log_upper();
 		List<Concept> listCon = new ArrayList<Concept>();
 		ConceptManager man = new ConceptManager();
-		List<OWLClassExpression> listSub = new ArrayList<OWLClassExpression>();
 		
 		for(OWLClass owlClass: onto.getClassesInSignature()) {
-			extract_subClass(onto, owlClass, null, listSub);
-			//if(listSub.isEmpty() && !owlClass.isOWLThing()) { rodando apenas o ultimo nivel
+		
 			if(!owlClass.isOWLThing()) { //rodando com toda ontologia
 				// instantiate the Concept class
 				Concept concept = new Concept();

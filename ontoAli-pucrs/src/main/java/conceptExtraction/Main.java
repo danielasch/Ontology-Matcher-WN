@@ -495,7 +495,7 @@ public class Main {
 			op[0] = args[3].substring(0,1);
 			op[1] = args[3].substring(2,3);
 			op[2] = args[3].substring(4,5);
-			op[3] = args[3].substring(5);
+			op[3] = args[3].substring(6);
 			return op;
 		} else if(args[3].substring(1,2).equals(":") && args[3].substring(3,4).equals(":")) {
 			op[0] = args[3].substring(0,1);

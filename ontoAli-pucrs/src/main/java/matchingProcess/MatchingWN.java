@@ -93,8 +93,8 @@ public class MatchingWN extends RDF{
 		if(align != null) {
 			Mapping mappin = new Mapping();
 			man.config_aliClass(cnp, align.get_owlClass());
-			mappin.set_source(cnp.get_classID());
-			mappin.set_target(align.get_classID());
+			mappin.set_source(cnp..get_owlClass().getIRI().toString());
+			mappin.set_target(align..get_owlClass().getIRI().toString());
 			mappin.set_measure("1.0");
 			mappin.set_relation("&lt;");
 			this.listMap.add(mappin);
